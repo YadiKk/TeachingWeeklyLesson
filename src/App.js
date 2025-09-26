@@ -194,13 +194,6 @@ function App() {
           error={error}
         />
         
-        {/* Test mesajı - Firebase konfigürasyonu yapıldıktan sonra silinecek */}
-        <div className="card p-4 mb-6 bg-yellow-100 border border-yellow-400">
-          <p className="text-yellow-800">
-            ⚠️ Firebase konfigürasyonu yapılması gerekiyor. 
-            <code className="bg-yellow-200 px-2 py-1 rounded">src/firebase/config.js</code> dosyasını güncelleyin.
-          </p>
-        </div>
         
         {currentGroup && (
           <WeekControls 
