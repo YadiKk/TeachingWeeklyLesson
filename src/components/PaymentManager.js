@@ -168,35 +168,42 @@ const PaymentManager = ({ students, currentGroup }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Month/Year Selector */}
       <div className="card p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-          <label className="text-sm font-medium text-gray-700">
-            Ay/Yıl Seçin:
-          </label>
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-            className="input-field w-32"
-          >
-            {generateMonthOptions().map(month => (
-              <option key={month.value} value={month.value}>
-                {month.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-            className="input-field w-24"
-          >
-            {generateYearOptions().map(year => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+          <div className="flex items-center space-x-4">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Aylık Ödeme Yönetimi
+            </h3>
+            <div className="flex items-center space-x-2">
+              <label className="text-sm font-medium text-gray-700">
+                Ay/Yıl:
+              </label>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                className="input-field w-32"
+              >
+                {generateMonthOptions().map(month => (
+                  <option key={month.value} value={month.value}>
+                    {month.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                className="input-field w-24"
+              >
+                {generateYearOptions().map(year => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -208,17 +215,17 @@ const PaymentManager = ({ students, currentGroup }) => {
       />
 
       {/* Payment Status List */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-800">
+      <div className="space-y-3">
+        <h4 className="text-md font-semibold text-gray-800">
           Öğrenci Ödeme Durumları
-        </h3>
+        </h4>
         
         {paymentStatuses.length === 0 ? (
-          <div className="card p-6 text-center">
-            <p className="text-gray-500">Bu ay için öğrenci bulunamadı.</p>
+          <div className="card p-4 text-center">
+            <p className="text-gray-500 text-sm">Bu ay için öğrenci bulunamadı.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {paymentStatuses.map((paymentStatus) => (
               <PaymentStatus
                 key={paymentStatus.studentId}

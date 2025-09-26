@@ -23,7 +23,7 @@ function App() {
     updateSettings 
   } = useGroup();
   
-  const [currentPage, setCurrentPage] = useState('lessons'); // 'lessons', 'cancelled', or 'payments'
+  const [showDashboard, setShowDashboard] = useState(true); // Show all panels in dashboard view
   
   // Get settings from group or use defaults
   const currentWeekStart = groupSettings?.settings?.currentWeekStart || getWeekStart().toISOString();
@@ -316,39 +316,27 @@ function App() {
         
         {currentGroup && (
           <>
-            {/* Navigation Tabs */}
+            {/* Dashboard Toggle */}
             <div className="card p-4 mb-6">
-              <div className="flex flex-wrap space-x-4">
-                <button
-                  onClick={() => setCurrentPage('lessons')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    currentPage === 'lessons'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Current Lessons
-                </button>
-                <button
-                  onClick={() => setCurrentPage('cancelled')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    currentPage === 'cancelled'
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Cancelled Lessons ({cancelledLessons.length})
-                </button>
-                <button
-                  onClick={() => setCurrentPage('payments')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    currentPage === 'payments'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Payment Management
-                </button>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Teaching Dashboard
+                </h2>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">
+                    {students.length} öğrenci • {cancelledLessons.length} iptal edilen ders
+                  </span>
+                  <button
+                    onClick={() => setShowDashboard(!showDashboard)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      showDashboard
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {showDashboard ? 'Dashboard Görünümü' : 'Panel Görünümü'}
+                  </button>
+                </div>
               </div>
             </div>
           </>
@@ -356,69 +344,137 @@ function App() {
         
         {currentGroup && (
           <>
-            {currentPage === 'lessons' && (
-              <>
+            {showDashboard ? (
+              // Dashboard View - All panels visible
+              <div className="space-y-6">
+                {/* Payment Management - Top Priority */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  <div className="xl:col-span-2">
+                    <PaymentManager
+                      students={students}
+                      currentGroup={currentGroup}
+                    />
+                  </div>
+                </div>
+
+                {/* Today's Lessons and Cancelled Lessons */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <TodaysLessons 
+                      todaysLessons={todaysLessons}
+                      onToggleLesson={handleToggleLesson}
+                      onToggleLessonCancellation={handleToggleLessonCancellation}
+                    />
+                  </div>
+                  <div>
+                    <CancelledLessons
+                      cancelledLessons={cancelledLessons}
+                      onRescheduleLesson={handleRescheduleLesson}
+                      onRestoreLesson={handleRestoreLesson}
+                    />
+                  </div>
+                </div>
+
+                {/* Add Student Form */}
+                <AddStudentForm 
+                  onAddStudent={handleAddStudent}
+                  weekStartDay={weekStartDay}
+                  currentWeekStart={currentWeekStart}
+                />
+
+                {/* Student Cards */}
+                {students.length === 0 ? (
+                  <div className="card p-8 text-center">
+                    <div className="text-gray-500 mb-4">
+                      <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">No Students Added Yet</h3>
+                    <p className="text-gray-600">Add your first student to start tracking their weekly lessons.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-800">Student Weekly Schedules</h3>
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                      {students.map(student => (
+                        <StudentCard
+                          key={student.id}
+                          student={student}
+                          onUpdateStudent={handleUpdateStudent}
+                          onDeleteStudent={handleDeleteStudent}
+                          onToggleLesson={handleToggleLesson}
+                          onUpdateLessonTime={handleUpdateLessonTime}
+                          onToggleLessonCancellation={handleToggleLessonCancellation}
+                          onLessonStatusChange={handleLessonStatusChange}
+                          weekStartDay={weekStartDay}
+                          currentWeekStart={currentWeekStart}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // Tab View - Original functionality
+              <div className="space-y-6">
                 <TodaysLessons 
                   todaysLessons={todaysLessons}
                   onToggleLesson={handleToggleLesson}
                   onToggleLessonCancellation={handleToggleLessonCancellation}
                 />
-              </>
-            )}
-            
-            {currentPage === 'cancelled' && (
-              <CancelledLessons
-                cancelledLessons={cancelledLessons}
-                onRescheduleLesson={handleRescheduleLesson}
-                onRestoreLesson={handleRestoreLesson}
-              />
-            )}
-            
-            {currentPage === 'payments' && (
-              <PaymentManager
-                students={students}
-                currentGroup={currentGroup}
-              />
-            )}
-            
-            <AddStudentForm 
-              onAddStudent={handleAddStudent}
-              weekStartDay={weekStartDay}
-              currentWeekStart={currentWeekStart}
-            />
-            
-            {students.length === 0 ? (
-              <div className="card p-8 text-center">
-                <div className="text-gray-500 mb-4">
-                  <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-medium text-gray-800 mb-2">No Students Added Yet</h3>
-                <p className="text-gray-600">Add your first student to start tracking their weekly lessons.</p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {students.map(student => (
-                  <StudentCard
-                    key={student.id}
-                    student={student}
-                    onUpdateStudent={handleUpdateStudent}
-                    onDeleteStudent={handleDeleteStudent}
-                    onToggleLesson={handleToggleLesson}
-                    onUpdateLessonTime={handleUpdateLessonTime}
-                    onToggleLessonCancellation={handleToggleLessonCancellation}
-                    onLessonStatusChange={handleLessonStatusChange}
-                    weekStartDay={weekStartDay}
-                    currentWeekStart={currentWeekStart}
-                  />
-                ))}
+                
+                <CancelledLessons
+                  cancelledLessons={cancelledLessons}
+                  onRescheduleLesson={handleRescheduleLesson}
+                  onRestoreLesson={handleRestoreLesson}
+                />
+                
+                <PaymentManager
+                  students={students}
+                  currentGroup={currentGroup}
+                />
+                
+                <AddStudentForm 
+                  onAddStudent={handleAddStudent}
+                  weekStartDay={weekStartDay}
+                  currentWeekStart={currentWeekStart}
+                />
+                
+                {students.length === 0 ? (
+                  <div className="card p-8 text-center">
+                    <div className="text-gray-500 mb-4">
+                      <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">No Students Added Yet</h3>
+                    <p className="text-gray-600">Add your first student to start tracking their weekly lessons.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {students.map(student => (
+                      <StudentCard
+                        key={student.id}
+                        student={student}
+                        onUpdateStudent={handleUpdateStudent}
+                        onDeleteStudent={handleDeleteStudent}
+                        onToggleLesson={handleToggleLesson}
+                        onUpdateLessonTime={handleUpdateLessonTime}
+                        onToggleLessonCancellation={handleToggleLessonCancellation}
+                        onLessonStatusChange={handleLessonStatusChange}
+                        weekStartDay={weekStartDay}
+                        currentWeekStart={currentWeekStart}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             
             {students.length > 0 && (
               <div className="mt-8 text-center text-sm text-gray-500">
-                <p>💡 Tip: Click the checkboxes to mark lessons as completed, and use "Next Week" to advance to the following week.</p>
+                <p>💡 Tip: Dashboard görünümünde tüm panelleri aynı anda görebilirsiniz. Ödeme yönetimi en üstte yer alır.</p>
               </div>
             )}
           </>
