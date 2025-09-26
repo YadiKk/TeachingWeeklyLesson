@@ -6,12 +6,13 @@ import { getAuth } from 'firebase/auth';
 // Firebase configuration object
 // Bu bilgileri Firebase Console'dan alacaksınız
 const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: "AIzaSyApVaWvKLRFxZvgWSjlvSN9edE0fC2Wryo",
+  authDomain: "weeklylesson-7272c.firebaseapp.com",
+  projectId: "weeklylesson-7272c",
+  storageBucket: "weeklylesson-7272c.firebasestorage.app",
+  messagingSenderId: "159028069855",
+  appId: "1:159028069855:web:a0509e7ebba01fde45b06a",
+  measurementId: "G-P7N3MXN19M"
 };
 
 // Initialize Firebase
