@@ -1,8 +1,7 @@
 import React from 'react';
-import LessonList from './LessonList';
+import WeeklyView from './WeeklyView';
 import DaySelector from './DaySelector';
-import LessonStatusSelector from './LessonStatusSelector';
-import { getLessonsForWeek } from '../utils/dateUtils';
+import { getWeeklyView } from '../utils/dateUtils';
 
 const StudentCard = ({ student, onUpdateStudent, onDeleteStudent, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange, weekStartDay, currentWeekStart }) => {
   const handleNameChange = (e) => {
@@ -57,8 +56,8 @@ const StudentCard = ({ student, onUpdateStudent, onDeleteStudent, onToggleLesson
         />
       </div>
       
-      <LessonList 
-        lessons={getLessonsForWeek(student, currentWeekStart, weekStartDay)} 
+      <WeeklyView 
+        weeklyView={getWeeklyView(student, currentWeekStart, weekStartDay)} 
         onToggleLesson={(lessonId) => onToggleLesson(student.id, lessonId)}
         onUpdateLessonTime={(lessonId, time) => onUpdateLessonTime(student.id, lessonId, time)}
         onToggleLessonCancellation={(lessonId) => onToggleLessonCancellation(student.id, lessonId)}

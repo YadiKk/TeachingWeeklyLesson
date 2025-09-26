@@ -168,3 +168,33 @@ export const getLessonsForWeek = (student, currentWeekStart, weekStartDay) => {
     return weekStart.getTime() === currentWeekStartDate.getTime();
   });
 };
+
+export const getWeeklyView = (student, currentWeekStart, weekStartDay) => {
+  const currentWeekStartDate = new Date(currentWeekStart);
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weeklyView = [];
+  
+  // Create all 7 days of the week
+  for (let i = 0; i < 7; i++) {
+    const dayDate = addDays(currentWeekStartDate, i);
+    const dayOfWeek = dayDate.getDay();
+    const dayName = daysOfWeek[dayOfWeek];
+    
+    // Find lesson for this day
+    const lessonForDay = student.lessons.find(lesson => {
+      const lessonDate = new Date(lesson.date);
+      // Check if the lesson date matches this day of the week
+      return lessonDate.getDay() === dayOfWeek;
+    });
+    
+    weeklyView.push({
+      dayOfWeek: dayOfWeek,
+      dayName: dayName,
+      date: dayDate.toISOString(),
+      lesson: lessonForDay || null,
+      hasLesson: !!lessonForDay
+    });
+  }
+  
+  return weeklyView;
+};
