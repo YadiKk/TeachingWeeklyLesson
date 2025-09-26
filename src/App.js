@@ -2,6 +2,7 @@ import React from 'react';
 import { useGroup } from './hooks/useGroup';
 import { addStudent, updateStudent, deleteStudent } from './firebase/lessonService';
 import { generateLessonDates, getWeekStart, getTodaysLessons, getPreviousWeek, getNextWeek } from './utils/dateUtils';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import WeekControls from './components/WeekControls';
 import AddStudentForm from './components/AddStudentForm';
 import StudentCard from './components/StudentCard';
@@ -9,8 +10,9 @@ import TodaysLessons from './components/TodaysLessons';
 import CancelledLessons from './components/CancelledLessons';
 import GroupManager from './components/GroupManager';
 import PaymentManager from './components/PaymentManager';
+import LanguageSelector from './components/LanguageSelector';
 
-function App() {
+function AppContent() {
   const { 
     currentGroup, 
     students, 
@@ -23,6 +25,8 @@ function App() {
     updateSettings 
   } = useGroup();
   
+  const { t } = useLanguage();
+  
   // Removed dashboard toggle - keeping only simple view
   
   // Get settings from group or use defaults
@@ -32,7 +36,7 @@ function App() {
   const handleAddStudent = async (newStudent) => {
     try {
       if (!currentGroup) {
-        alert('Please join a group or create a group first');
+        alert(t('pleaseJoinGroupFirst'));
         return;
       }
       
@@ -49,11 +53,11 @@ function App() {
       const result = await addStudent(currentGroup, studentData);
       
       if (!result.success) {
-        alert('Error adding student: ' + result.error);
+        alert(t('errorAddingStudent') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error adding student:', error);
-      alert('Error adding student: ' + error.message);
+      alert(t('errorAddingStudent') + ': ' + error.message);
     }
   };
 
@@ -79,15 +83,15 @@ function App() {
   };
 
   const handleDeleteStudent = async (studentId) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
+    if (window.confirm(t('areYouSureDeleteStudent'))) {
       try {
         const result = await deleteStudent(studentId);
         if (!result.success) {
-          alert('Error deleting student: ' + result.error);
+          alert(t('errorDeletingStudent') + ': ' + result.error);
         }
       } catch (error) {
         console.error('Error deleting student:', error);
-        alert('Error deleting student: ' + error.message);
+        alert(t('errorDeletingStudent') + ': ' + error.message);
       }
     }
   };
@@ -105,11 +109,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Error updating lesson: ' + result.error);
+        alert(t('errorUpdatingLesson') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error toggling lesson:', error);
-      alert('Error updating lesson: ' + error.message);
+      alert(t('errorUpdatingLesson') + ': ' + error.message);
     }
   };
 
@@ -126,11 +130,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Error updating lesson time: ' + result.error);
+        alert(t('errorUpdatingLessonTime') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating lesson time:', error);
-      alert('Error updating lesson time: ' + error.message);
+      alert(t('errorUpdatingLessonTime') + ': ' + error.message);
     }
   };
 
@@ -147,11 +151,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Error updating lesson cancellation status: ' + result.error);
+        alert(t('errorUpdatingLessonCancellation') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error toggling lesson cancellation:', error);
-      alert('Error updating lesson cancellation status: ' + error.message);
+      alert(t('errorUpdatingLessonCancellation') + ': ' + error.message);
     }
   };
 
@@ -172,11 +176,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Error changing lesson status: ' + result.error);
+        alert(t('errorChangingLessonStatus') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error changing lesson status:', error);
-      alert('Error changing lesson status: ' + error.message);
+      alert(t('errorChangingLessonStatus') + ': ' + error.message);
     }
   };
 
@@ -193,11 +197,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Error restoring lesson: ' + result.error);
+        alert(t('errorRestoringLesson') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error restoring lesson:', error);
-      alert('Error restoring lesson: ' + error.message);
+      alert(t('errorRestoringLesson') + ': ' + error.message);
     }
   };
 
@@ -216,11 +220,11 @@ function App() {
       });
       
       if (!result.success) {
-        alert('Error updating week: ' + result.error);
+        alert(t('errorUpdatingWeek') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week:', error);
-      alert('Error updating week: ' + error.message);
+      alert(t('errorUpdatingWeek') + ': ' + error.message);
     }
   };
 
@@ -235,11 +239,11 @@ function App() {
       });
       
       if (!result.success) {
-        alert('Error updating week: ' + result.error);
+        alert(t('errorUpdatingWeek') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week:', error);
-      alert('Error updating week: ' + error.message);
+      alert(t('errorUpdatingWeek') + ': ' + error.message);
     }
   };
 
@@ -254,11 +258,11 @@ function App() {
       });
       
       if (!result.success) {
-        alert('Error updating week start day: ' + result.error);
+        alert(t('errorUpdatingWeekStartDay') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week start day:', error);
-      alert('Error updating week start day: ' + error.message);
+      alert(t('errorUpdatingWeekStartDay') + ': ' + error.message);
     }
   };
 
@@ -291,12 +295,13 @@ function App() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Lesson Tracking System</h1>
-              <p className="text-gray-600">Student lessons and payment management</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('lessonTrackingSystem')}</h1>
+              <p className="text-gray-600">{t('studentLessonsAndPaymentManagement')}</p>
             </div>
             <div className="flex items-center space-x-4">
+              <LanguageSelector />
               <span className="text-sm text-gray-500">
-                {migratedStudents.length} students • {cancelledLessons.length} cancelled
+                {migratedStudents.length} {t('students')} • {cancelledLessons.length} {t('cancelled')}
               </span>
             </div>
           </div>
@@ -357,8 +362,8 @@ function App() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">No Students Yet</h3>
-                  <p className="text-gray-600">Start by adding your first student.</p>
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">{t('noStudentsYet')}</h3>
+                  <p className="text-gray-600">{t('startByAddingFirstStudent')}</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -367,7 +372,7 @@ function App() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                        Monthly Payment Students
+                        {t('monthlyPaymentStudents')}
                       </h3>
                       <div className="space-y-4">
                         {migratedStudents.filter(student => student.paymentType === 'monthly').map(student => (
@@ -393,7 +398,7 @@ function App() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                        Daily Payment Students
+                        {t('dailyPaymentStudents')}
                       </h3>
                       <div className="space-y-4">
                         {migratedStudents.filter(student => student.paymentType === 'daily').map(student => (
@@ -420,6 +425,14 @@ function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

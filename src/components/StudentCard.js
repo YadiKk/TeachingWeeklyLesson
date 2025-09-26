@@ -2,6 +2,7 @@ import React from 'react';
 import WeeklyView from './WeeklyView';
 import DaySelector from './DaySelector';
 import { getWeeklyView } from '../utils/dateUtils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const StudentCard = ({ 
   student, 
@@ -14,6 +15,7 @@ const StudentCard = ({
   weekStartDay, 
   currentWeekStart 
 }) => {
+  const { t } = useLanguage();
   const handleNameChange = (e) => {
     onUpdateStudent(student.id, { name: e.target.value });
   };
@@ -43,7 +45,7 @@ const StudentCard = ({
       await onUpdateStudent(student.id, { lessons: updatedLessons });
     } catch (error) {
       console.error('Error toggling lesson payment:', error);
-      alert('Error updating lesson payment status: ' + error.message);
+      alert(t('errorUpdatingLesson') + ': ' + error.message);
     }
   };
 
@@ -72,28 +74,28 @@ const StudentCard = ({
             value={student.name}
             onChange={handleNameChange}
             className="input text-lg font-semibold mb-2"
-            placeholder="Student Name"
+            placeholder={t('studentName')}
           />
           <div className="text-sm text-gray-600">
-            Weekly lesson count: {student.weeklyLessonCount || 0}
+            {t('weeklyLessonCount')}: {student.weeklyLessonCount || 0}
           </div>
           <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                Payment Type:
+                {t('paymentType')}:
               </label>
               <select
                 value={student.paymentType || 'monthly'}
                 onChange={handlePaymentTypeChange}
                 className="input text-xs"
               >
-                <option value="monthly">Monthly</option>
-                <option value="daily">Daily</option>
+                <option value="monthly">{t('monthly')}</option>
+                <option value="daily">{t('daily')}</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                Amount:
+                {t('amount')}:
               </label>
               <input
                 type="number"
@@ -106,7 +108,7 @@ const StudentCard = ({
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                Currency:
+                {t('currency')}:
               </label>
               <select
                 value={student.currency || 'TRY'}
@@ -125,7 +127,7 @@ const StudentCard = ({
           onClick={() => onDeleteStudent(student.id)}
           className="btn btn-danger text-sm"
         >
-          Delete
+          {t('delete')}
         </button>
       </div>
       

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
+  const { t } = useLanguage();
   const daysOfWeek = [
     { value: 0, label: 'Sunday', short: 'Sun' },
     { value: 1, label: 'Monday', short: 'Mon' },
@@ -14,7 +16,7 @@ const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-gray-700">
-        Select Lesson Days:
+        {t('selectLessonDays')}:
       </label>
       <div className="grid grid-cols-4 gap-2">
         {daysOfWeek.map((day) => (
@@ -34,7 +36,7 @@ const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
         ))}
       </div>
       <p className="text-xs text-gray-500">
-        {selectedDays.length} days selected
+        {selectedDays.length} {t('daysSelected')}
       </p>
     </div>
   );

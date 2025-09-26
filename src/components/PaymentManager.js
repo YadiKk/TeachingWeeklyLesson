@@ -12,11 +12,13 @@ import {
   formatCurrency
 } from '../utils/paymentUtils';
 import { getWeekStart, getLessonsForWeek } from '../utils/dateUtils';
+import { useLanguage } from '../contexts/LanguageContext';
 import PaymentSummary from './PaymentSummary';
 import PaymentStatus from './PaymentStatus';
 import PaymentModal from './PaymentModal';
 
 const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekStart }) => {
+  const { t } = useLanguage();
   const [monthlyPayments, setMonthlyPayments] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthYear().month);
   const [selectedYear, setSelectedYear] = useState(getCurrentMonthYear().year);
@@ -79,7 +81,7 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
       }
     } catch (error) {
       console.error('Error marking as paid:', error);
-      alert('Ödeme işaretlenirken hata oluştu: ' + error.message);
+      alert(t('errorUpdatingLesson') + ': ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -100,7 +102,7 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
       }
     } catch (error) {
       console.error('Error marking as unpaid:', error);
-      alert('Ödeme durumu güncellenirken hata oluştu: ' + error.message);
+      alert(t('errorUpdatingLesson') + ': ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -137,7 +139,7 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
       }
     } catch (error) {
       console.error('Error saving payment:', error);
-      alert('Ödeme kaydedilirken hata oluştu: ' + error.message);
+      alert(t('errorUpdatingLesson') + ': ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -158,24 +160,24 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
       await updateStudent(studentId, { lessons: updatedLessons });
     } catch (error) {
       console.error('Error toggling daily payment:', error);
-      alert('Ders ödeme durumu güncellenirken hata oluştu: ' + error.message);
+      alert(t('errorUpdatingLesson') + ': ' + error.message);
     }
   };
 
   const generateMonthOptions = () => {
     const months = [
-      { value: 1, label: 'Ocak' },
-      { value: 2, label: 'Şubat' },
-      { value: 3, label: 'Mart' },
-      { value: 4, label: 'Nisan' },
-      { value: 5, label: 'Mayıs' },
-      { value: 6, label: 'Haziran' },
-      { value: 7, label: 'Temmuz' },
-      { value: 8, label: 'Ağustos' },
-      { value: 9, label: 'Eylül' },
-      { value: 10, label: 'Ekim' },
-      { value: 11, label: 'Kasım' },
-      { value: 12, label: 'Aralık' }
+      { value: 1, label: t('january') },
+      { value: 2, label: t('february') },
+      { value: 3, label: t('march') },
+      { value: 4, label: t('april') },
+      { value: 5, label: t('may') },
+      { value: 6, label: t('june') },
+      { value: 7, label: t('july') },
+      { value: 8, label: t('august') },
+      { value: 9, label: t('september') },
+      { value: 10, label: t('october') },
+      { value: 11, label: t('november') },
+      { value: 12, label: t('december') }
     ];
     return months;
   };
@@ -192,7 +194,7 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
   if (!currentGroup) {
     return (
       <div className="card text-center">
-        <p className="text-gray-500">Önce bir gruba katılın veya grup oluşturun.</p>
+        <p className="text-gray-500">{t('pleaseJoinGroupFirst')}</p>
       </div>
     );
   }
@@ -207,11 +209,11 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
             <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
               <div className="flex items-center space-x-4">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Aylık Ödeme Yönetimi
+                  {t('monthlyPaymentManagement')}
                 </h3>
             <div className="flex items-center space-x-2">
               <label className="text-sm font-medium text-gray-700">
-                Ay/Yıl:
+                {t('monthYear')}:
               </label>
               <select
                 value={selectedMonth}
@@ -250,12 +252,12 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
           {/* Payment Status List */}
           <div className="space-y-3">
             <h4 className="text-md font-semibold text-gray-800">
-              Aylık Ödemeli Öğrenciler
+              {t('monthlyPaymentStudents')}
             </h4>
             
             {monthlyPaymentStatuses.length === 0 ? (
               <div className="card text-center">
-                <p className="text-gray-500 text-sm">Bu ay için aylık ödemeli öğrenci bulunamadı.</p>
+                <p className="text-gray-500 text-sm">{t('noMonthlyStudentsThisMonth')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -279,16 +281,16 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
         <div className="space-y-4">
           <div className="card">
             <h3 className="text-lg font-semibold text-gray-800">
-              Günlük Ödeme Yönetimi
+              {t('dailyPaymentManagement')}
             </h3>
             <p className="text-sm text-gray-600 mt-2">
-              Günlük ödemeli öğrenciler için ders bazında ödeme takibi yapılır.
+              {t('dailyPaymentStudentsDescription')}
             </p>
           </div>
 
           <div className="space-y-3">
             <h4 className="text-md font-semibold text-gray-800">
-              Günlük Ödemeli Öğrenciler
+              {t('dailyPaymentStudents')}
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -307,12 +309,12 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
                       <div>
                         <h5 className="font-semibold text-gray-900 text-lg">{student.name}</h5>
                         <p className="text-sm text-gray-600">
-                          {formatCurrency(student.amount || 0, student.currency || 'TRY')}/ders
+                          {formatCurrency(student.amount || 0, student.currency || 'TRY')}{t('perLesson')}
                         </p>
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-bold text-blue-600">{paidLessons}/{totalLessons}</div>
-                        <div className="text-xs text-gray-500">ders ödendi</div>
+                        <div className="text-xs text-gray-500">{t('lessonsPaid')}</div>
                       </div>
                     </div>
 
@@ -320,19 +322,19 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
                     <div className="bg-gray-50 rounded-lg p-3 mb-4">
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
-                          <div className="text-gray-600">Toplam Tutar:</div>
+                          <div className="text-gray-600">{t('totalAmount')}:</div>
                           <div className="font-semibold text-gray-900">{formatCurrency(totalAmount, student.currency || 'TRY')}</div>
                         </div>
                         <div>
-                          <div className="text-gray-600">Ödenen:</div>
+                          <div className="text-gray-600">{t('paid')}:</div>
                           <div className="font-semibold text-green-600">{formatCurrency(paidAmount, student.currency || 'TRY')}</div>
                         </div>
                         <div>
-                          <div className="text-gray-600">Kalan:</div>
+                          <div className="text-gray-600">{t('remaining')}:</div>
                           <div className="font-semibold text-red-600">{formatCurrency(totalAmount - paidAmount, student.currency || 'TRY')}</div>
                         </div>
                         <div>
-                          <div className="text-gray-600">İlerleme:</div>
+                          <div className="text-gray-600">{t('progress')}:</div>
                           <div className="font-semibold text-blue-600">%{totalLessons > 0 ? Math.round((paidLessons / totalLessons) * 100) : 0}</div>
                         </div>
                       </div>
@@ -341,8 +343,8 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
                     {/* Progress Bar */}
                     <div className="mb-4">
                       <div className="flex justify-between text-xs text-gray-600 mb-1">
-                        <span>Ödeme İlerlemesi</span>
-                        <span>{paidLessons}/{totalLessons} ders</span>
+                        <span>{t('paymentProgress')}</span>
+                        <span>{paidLessons}/{totalLessons} {t('lessons')}</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div 
@@ -354,11 +356,11 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
                     
                     {/* Daily Payment Buttons */}
                     <div className="space-y-3">
-                      <h6 className="text-sm font-semibold text-gray-800 text-center">Bu Haftaki Dersler - Ödeme Butonları</h6>
+                      <h6 className="text-sm font-semibold text-gray-800 text-center">{t('thisWeeksLessons')}</h6>
                       <div className="grid grid-cols-2 gap-2">
                         {currentWeekLessons.map((lesson) => {
                           const lessonDate = new Date(lesson.date);
-                          const dayName = lessonDate.toLocaleDateString('tr-TR', { weekday: 'short' });
+                          const dayName = lessonDate.toLocaleDateString('en-US', { weekday: 'short' });
                           const dayNumber = lessonDate.getDate();
                           return (
                             <button
@@ -369,7 +371,7 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
                                   ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg'
                                   : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-700 border-2 border-gray-300 hover:border-blue-400'
                               }`}
-                              title={lesson.paid ? 'Ödendi - Tıklayarak iptal et' : 'Ödenmedi - Tıklayarak öde'}
+                              title={lesson.paid ? t('paidClickToCancel') : t('notPaidClickToPay')}
                             >
                               <div className="font-bold">{dayName}</div>
                               <div className="text-xs">{dayNumber}</div>
@@ -381,7 +383,7 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
                       
                       {currentWeekLessons.length === 0 && (
                         <div className="text-center py-4 text-gray-500 text-sm">
-                          Bu hafta ders yok
+                          {t('noLessonsThisWeek')}
                         </div>
                       )}
                     </div>

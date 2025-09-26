@@ -162,13 +162,13 @@ export const getNextWeek = (currentWeekStart) => {
 
 export const getWeekStartDayOptions = () => {
   return [
-    { value: 0, label: 'Pazar' },
-    { value: 1, label: 'Pazartesi' },
-    { value: 2, label: 'Salı' },
-    { value: 3, label: 'Çarşamba' },
-    { value: 4, label: 'Perşembe' },
-    { value: 5, label: 'Cuma' },
-    { value: 6, label: 'Cumartesi' }
+    { value: 0, label: 'Sunday' },
+    { value: 1, label: 'Monday' },
+    { value: 2, label: 'Tuesday' },
+    { value: 3, label: 'Wednesday' },
+    { value: 4, label: 'Thursday' },
+    { value: 5, label: 'Friday' },
+    { value: 6, label: 'Saturday' }
   ];
 };
 

@@ -3,11 +3,13 @@ import { formatDate, formatTime } from '../utils/dateUtils';
 import { formatCurrency } from '../utils/paymentUtils';
 import TimeSelector from './TimeSelector';
 import LessonStatusSelector from './LessonStatusSelector';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const WeeklyView = ({ weeklyView, student, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange, onToggleLessonPayment }) => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-3">
-      <h4 className="text-md font-medium text-gray-700">This Week's Schedule</h4>
+      <h4 className="text-md font-medium text-gray-700">{t('thisWeeksSchedule')}</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-2">
         {weeklyView.map((dayData) => (
           <div
@@ -41,7 +43,7 @@ const WeeklyView = ({ weeklyView, student, onToggleLesson, onUpdateLessonTime, o
                     <div className={`font-medium ${
                       dayData.lesson.cancelled ? 'text-red-600 line-through' : 'text-gray-900'
                     }`}>
-                      {dayData.lesson.cancelled ? 'Cancelled' : 'Scheduled'}
+                      {dayData.lesson.cancelled ? t('cancelled') : t('scheduled')}
                     </div>
                   </div>
                   
@@ -69,20 +71,20 @@ const WeeklyView = ({ weeklyView, student, onToggleLesson, onUpdateLessonTime, o
                               ? 'bg-green-500 text-white hover:bg-green-600' 
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                           }`}
-                          title={dayData.lesson.paid ? 'Paid - Click to cancel' : 'Not paid - Click to pay'}
+                          title={dayData.lesson.paid ? t('paidClickToCancel') : t('notPaidClickToPay')}
                         >
-                          {dayData.lesson.paid ? '✓ Paid' : 'Pay'}
+                          {dayData.lesson.paid ? '✓ ' + t('paid') : t('pay')}
                         </button>
                       </div>
                       <div className="text-xs text-gray-500 text-center">
-                        {dayData.lesson.paid ? 'Payment completed' : 'Payment pending'}
+                        {dayData.lesson.paid ? t('paymentCompleted') : t('paymentPending')}
                       </div>
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="text-xs text-gray-400 italic">
-                  No lesson
+                  {t('noLesson')}
                 </div>
               )}
             </div>

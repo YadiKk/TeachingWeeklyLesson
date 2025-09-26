@@ -1,7 +1,9 @@
 import React from 'react';
 import { formatCurrency } from '../utils/paymentUtils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPayment }) => {
+  const { t } = useLanguage();
   const { 
     studentName, 
     paymentType,
@@ -45,13 +47,13 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
       <div className="flex justify-between items-center mb-2 text-xs">
         <span className="text-gray-600">
           {paymentType === 'daily' 
-            ? `${paidLessons || 0}/${totalLessons} ders ödendi` 
-            : `${totalLessons} ders • ${isPaid ? 'Ödendi' : 'Ödenmedi'}`
+            ? `${paidLessons || 0}/${totalLessons} ${t('lessonsPaid')}` 
+            : `${totalLessons} ${t('lessons')} • ${isPaid ? t('paid') : t('notPaid')}`
           }
         </span>
         {isPaid && paymentDate && (
           <span className="text-gray-500">
-            {new Date(paymentDate).toLocaleDateString('tr-TR')}
+            {new Date(paymentDate).toLocaleDateString('en-US')}
           </span>
         )}
       </div>
@@ -70,13 +72,13 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
               onClick={() => onMarkAsUnpaid(paymentStatus.studentId)}
               className="btn btn-danger text-xs px-2 py-1"
             >
-              İptal
+              {t('cancel')}
             </button>
             <button
               onClick={() => onEditPayment(paymentStatus)}
               className="btn btn-primary text-xs px-2 py-1"
             >
-              Düzenle
+              {t('edit')}
             </button>
           </>
         ) : (
@@ -84,7 +86,7 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
             onClick={() => onMarkAsPaid(paymentStatus.studentId)}
             className="btn btn-success text-xs px-2 py-1"
           >
-            Ödendi
+            {t('paid')}
           </button>
         )}
       </div>
