@@ -16,21 +16,24 @@ const AddStudentForm = ({ onAddStudent, weekStartDay, currentWeekStart }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || selectedDays.length === 0) return;
 
     const newStudent = {
-      id: `student-${Date.now()}-${Math.random()}`,
       name: name.trim(),
       selectedDays: selectedDays,
-      weeklyLessonCount: selectedDays.length,
-      lessons: generateLessonDates(new Date(currentWeekStart), selectedDays, weekStartDay)
+      weeklyLessonCount: selectedDays.length
     };
 
-    onAddStudent(newStudent);
-    setName('');
-    setSelectedDays([1, 3]);
+    try {
+      await onAddStudent(newStudent);
+      setName('');
+      setSelectedDays([1, 3]);
+    } catch (error) {
+      console.error('Error adding student:', error);
+      alert('Öğrenci eklenirken hata oluştu: ' + error.message);
+    }
   };
 
   return (

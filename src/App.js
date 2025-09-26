@@ -59,78 +59,137 @@ function App() {
   };
 
   const handleDeleteStudent = async (studentId) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      await deleteStudent(studentId);
+    if (window.confirm('Bu öğrenciyi silmek istediğinizden emin misiniz?')) {
+      try {
+        const result = await deleteStudent(studentId);
+        if (result.success) {
+          console.log('Student deleted successfully');
+        } else {
+          console.error('Error deleting student:', result.error);
+          alert('Öğrenci silinirken hata oluştu: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error deleting student:', error);
+        alert('Öğrenci silinirken hata oluştu: ' + error.message);
+      }
     }
   };
 
   const handleToggleLesson = async (studentId, lessonId) => {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const updatedLessons = student.lessons.map(lesson =>
-      lesson.id === lessonId
-        ? { ...lesson, completed: !lesson.completed }
-        : lesson
-    );
-    
-    await updateStudent(studentId, { lessons: updatedLessons });
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) {
+        console.error('Student not found:', studentId);
+        return;
+      }
+      
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? { ...lesson, completed: !lesson.completed }
+          : lesson
+      );
+      
+      const result = await updateStudent(studentId, { lessons: updatedLessons });
+      if (!result.success) {
+        console.error('Error updating lesson:', result.error);
+        alert('Ders güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error toggling lesson:', error);
+      alert('Ders güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleUpdateLessonTime = async (studentId, lessonId, time) => {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const updatedLessons = student.lessons.map(lesson =>
-      lesson.id === lessonId
-        ? { ...lesson, time: time }
-        : lesson
-    );
-    
-    await updateStudent(studentId, { lessons: updatedLessons });
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? { ...lesson, time: time }
+          : lesson
+      );
+      
+      const result = await updateStudent(studentId, { lessons: updatedLessons });
+      if (!result.success) {
+        console.error('Error updating lesson time:', result.error);
+        alert('Ders saati güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error updating lesson time:', error);
+      alert('Ders saati güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleToggleLessonCancellation = async (studentId, lessonId) => {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const updatedLessons = student.lessons.map(lesson =>
-      lesson.id === lessonId
-        ? { ...lesson, cancelled: !lesson.cancelled, completed: false }
-        : lesson
-    );
-    
-    await updateStudent(studentId, { lessons: updatedLessons });
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? { ...lesson, cancelled: !lesson.cancelled, completed: false }
+          : lesson
+      );
+      
+      const result = await updateStudent(studentId, { lessons: updatedLessons });
+      if (!result.success) {
+        console.error('Error toggling lesson cancellation:', result.error);
+        alert('Ders iptal durumu güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error toggling lesson cancellation:', error);
+      alert('Ders iptal durumu güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleLessonStatusChange = async (studentId, lessonId, status) => {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const updatedLessons = student.lessons.map(lesson =>
-      lesson.id === lessonId
-        ? {
-            ...lesson,
-            completed: status === 'completed',
-            cancelled: status === 'cancelled'
-          }
-        : lesson
-    );
-    
-    await updateStudent(studentId, { lessons: updatedLessons });
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? {
+              ...lesson,
+              completed: status === 'completed',
+              cancelled: status === 'cancelled'
+            }
+          : lesson
+      );
+      
+      const result = await updateStudent(studentId, { lessons: updatedLessons });
+      if (!result.success) {
+        console.error('Error changing lesson status:', result.error);
+        alert('Ders durumu güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error changing lesson status:', error);
+      alert('Ders durumu güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleRestoreLesson = async (studentId, lessonId) => {
-    const student = students.find(s => s.id === studentId);
-    if (!student) return;
-    
-    const updatedLessons = student.lessons.map(lesson =>
-      lesson.id === lessonId
-        ? { ...lesson, cancelled: false, completed: false }
-        : lesson
-    );
-    
-    await updateStudent(studentId, { lessons: updatedLessons });
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? { ...lesson, cancelled: false, completed: false }
+          : lesson
+      );
+      
+      const result = await updateStudent(studentId, { lessons: updatedLessons });
+      if (!result.success) {
+        console.error('Error restoring lesson:', result.error);
+        alert('Ders geri yüklenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error restoring lesson:', error);
+      alert('Ders geri yüklenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleRescheduleLesson = (studentId, lessonId) => {
@@ -140,33 +199,63 @@ function App() {
   };
 
   const handleNextWeek = async () => {
-    if (!currentGroup) return;
-    
-    const newWeekStart = getNextWeek(currentWeekStart);
-    await updateSettings({
-      currentWeekStart: newWeekStart.toISOString(),
-      weekStartDay
-    });
+    try {
+      if (!currentGroup) return;
+      
+      const newWeekStart = getNextWeek(currentWeekStart);
+      const result = await updateSettings({
+        currentWeekStart: newWeekStart.toISOString(),
+        weekStartDay
+      });
+      
+      if (!result.success) {
+        console.error('Error updating week:', result.error);
+        alert('Hafta güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error updating week:', error);
+      alert('Hafta güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handlePreviousWeek = async () => {
-    if (!currentGroup) return;
-    
-    const newWeekStart = getPreviousWeek(currentWeekStart);
-    await updateSettings({
-      currentWeekStart: newWeekStart.toISOString(),
-      weekStartDay
-    });
+    try {
+      if (!currentGroup) return;
+      
+      const newWeekStart = getPreviousWeek(currentWeekStart);
+      const result = await updateSettings({
+        currentWeekStart: newWeekStart.toISOString(),
+        weekStartDay
+      });
+      
+      if (!result.success) {
+        console.error('Error updating week:', result.error);
+        alert('Hafta güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error updating week:', error);
+      alert('Hafta güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleWeekStartDayChange = async (newWeekStartDay) => {
-    if (!currentGroup) return;
-    
-    const newWeekStart = getWeekStart(new Date(currentWeekStart), newWeekStartDay);
-    await updateSettings({
-      currentWeekStart: newWeekStart.toISOString(),
-      weekStartDay: newWeekStartDay
-    });
+    try {
+      if (!currentGroup) return;
+      
+      const newWeekStart = getWeekStart(new Date(currentWeekStart), newWeekStartDay);
+      const result = await updateSettings({
+        currentWeekStart: newWeekStart.toISOString(),
+        weekStartDay: newWeekStartDay
+      });
+      
+      if (!result.success) {
+        console.error('Error updating week start day:', result.error);
+        alert('Hafta başlangıç günü güncellenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error updating week start day:', error);
+      alert('Hafta başlangıç günü güncellenirken hata oluştu: ' + error.message);
+    }
   };
 
   const todaysLessons = getTodaysLessons(students, currentWeekStart, weekStartDay);
