@@ -79,15 +79,20 @@ export const useGroup = () => {
   useEffect(() => {
     if (!currentGroup) return;
 
+    console.log('Setting up Firebase listeners for group:', currentGroup);
+
     const unsubscribeStudents = subscribeToGroupData(currentGroup, (data) => {
+      console.log('Students updated in useGroup:', data);
       setStudents(data);
     });
 
     const unsubscribeSettings = subscribeToGroupSettings(currentGroup, (settings) => {
+      console.log('Settings updated in useGroup:', settings);
       setGroupSettings(settings);
     });
 
     return () => {
+      console.log('Cleaning up Firebase listeners');
       unsubscribeStudents();
       unsubscribeSettings();
     };

@@ -104,15 +104,23 @@ export const subscribeToGroupData = (groupId, callback) => {
   try {
     const studentsQuery = query(
       collection(db, STUDENTS_COLLECTION),
-      where('groupId', '==', groupId),
-      orderBy('createdAt', 'asc')
+      where('groupId', '==', groupId)
     );
     
     return onSnapshot(studentsQuery, (snapshot) => {
+      console.log('Firebase snapshot received:', snapshot.size, 'documents');
       const students = [];
       snapshot.forEach((doc) => {
+        console.log('Student document:', doc.id, doc.data());
         students.push({ id: doc.id, ...doc.data() });
       });
+      // Sort by creation time locally
+      students.sort((a, b) => {
+        const aTime = a.createdAt?.seconds || 0;
+        const bTime = b.createdAt?.seconds || 0;
+        return aTime - bTime;
+      });
+      console.log('Processed students:', students);
       callback(students);
     });
   } catch (error) {
