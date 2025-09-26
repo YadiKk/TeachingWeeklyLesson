@@ -4,9 +4,12 @@ import { formatCurrency } from '../utils/paymentUtils';
 const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPayment }) => {
   const { 
     studentName, 
-    monthlyFee, 
-    lessonsPerWeek, 
-    totalLessons, 
+    paymentType,
+    currency,
+    calculatedAmount,
+    displayText,
+    totalLessons,
+    paidLessons,
     isPaid, 
     paymentDate, 
     paymentMethod, 
@@ -31,17 +34,20 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
         
         <div className="text-right">
           <div className="text-sm font-bold text-gray-900">
-            {formatCurrency(monthlyFee)}
+            {formatCurrency(calculatedAmount, currency)}
           </div>
           <div className="text-xs text-gray-500">
-            {lessonsPerWeek} ders/hafta
+            {displayText}
           </div>
         </div>
       </div>
 
       <div className="flex justify-between items-center mb-2 text-xs">
         <span className="text-gray-600">
-          {totalLessons} ders • {isPaid ? 'Ödendi' : 'Ödenmedi'}
+          {paymentType === 'daily' 
+            ? `${paidLessons || 0}/${totalLessons} ders ödendi` 
+            : `${totalLessons} ders • ${isPaid ? 'Ödendi' : 'Ödenmedi'}`
+          }
         </span>
         {isPaid && paymentDate && (
           <span className="text-gray-500">

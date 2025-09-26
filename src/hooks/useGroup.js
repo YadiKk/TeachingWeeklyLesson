@@ -25,18 +25,29 @@ export const useGroup = () => {
     setLoading(true);
     setError(null);
     
-    const pin = generatePin();
-    const result = await createGroup(pin);
-    
-    if (result.success) {
-      setCurrentGroup(pin);
-      localStorage.setItem('currentGroup', pin);
+    try {
+      const pin = generatePin();
+      console.log('Creating group with pin:', pin);
+      const result = await createGroup(pin);
+      console.log('Group creation result:', result);
+      
+      if (result.success) {
+        setCurrentGroup(pin);
+        localStorage.setItem('currentGroup', pin);
+        setLoading(false);
+        setError(null); // Clear any previous errors
+        console.log('Group created successfully:', pin);
+        return { success: true, pin };
+      } else {
+        setError(result.error);
+        setLoading(false);
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      console.error('Error in createNewGroup:', error);
+      setError(error.message);
       setLoading(false);
-      return { success: true, pin };
-    } else {
-      setError(result.error);
-      setLoading(false);
-      return { success: false, error: result.error };
+      return { success: false, error: error.message };
     }
   }, []);
 

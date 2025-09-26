@@ -9,6 +9,7 @@ const GroupManager = ({
   error 
 }) => {
   const [joinPin, setJoinPin] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleJoinGroup = async (e) => {
     e.preventDefault();
@@ -19,7 +20,18 @@ const GroupManager = ({
   };
 
   const handleCreateGroup = async () => {
-    await onCreateGroup();
+    try {
+      setSuccessMessage('');
+      const result = await onCreateGroup();
+      if (result && result.success) {
+        setSuccessMessage(`Grup başarıyla oluşturuldu! Grup Kodu: ${result.pin}`);
+        setTimeout(() => setSuccessMessage(''), 5000); // Clear after 5 seconds
+      } else if (result && !result.success) {
+        console.error('Group creation failed:', result.error);
+      }
+    } catch (error) {
+      console.error('Error creating group:', error);
+    }
   };
 
   if (currentGroup) {
@@ -48,6 +60,12 @@ const GroupManager = ({
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
           {error}
+        </div>
+      )}
+      
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+          {successMessage}
         </div>
       )}
       

@@ -17,9 +17,18 @@ export const addDays = (date, days) => {
 export const getWeekStart = (date = new Date(), weekStartDay = 1) => {
   const d = new Date(date);
   const day = d.getDay();
-  // weekStartDay: 0=Sunday, 1=Monday, 2=Tuesday, etc.
-  const diff = d.getDate() - day + (day === 0 ? 7 - weekStartDay : (day >= weekStartDay ? weekStartDay - day : weekStartDay - day - 7));
-  return new Date(d.setDate(diff));
+  
+  // Calculate how many days to subtract to get to the week start
+  let daysToSubtract = day - weekStartDay;
+  if (daysToSubtract < 0) {
+    daysToSubtract += 7;
+  }
+  
+  // Set to the start of the week
+  d.setDate(d.getDate() - daysToSubtract);
+  d.setHours(0, 0, 0, 0); // Set to start of day
+  
+  return d;
 };
 
 export const generateLessonDates = (weekStart, selectedDays, weekStartDay = 1) => {
@@ -38,23 +47,27 @@ export const generateLessonDates = (weekStart, selectedDays, weekStartDay = 1) =
   sortedDays.forEach((dayValue, index) => {
     // Calculate the correct date for the selected day of the week
     const weekStartDate = new Date(weekStart);
-    const currentDay = weekStartDate.getDay();
-    const targetDay = dayValue;
     
-    // Calculate days to add to get to the target day
-    let daysToAdd = targetDay - currentDay;
+    // Calculate days to add to get to the target day from the week start
+    // dayValue is the day of the week (0=Sunday, 1=Monday, etc.)
+    // weekStartDay is the day the week starts (0=Sunday, 1=Monday, etc.)
+    let daysToAdd = dayValue - weekStartDay;
     if (daysToAdd < 0) {
       daysToAdd += 7;
     }
     
     const lessonDate = addDays(weekStartDate, daysToAdd);
     const dayOfWeek = lessonDate.getDay();
+    
+    console.log(`Generating lesson: Day ${dayValue} -> ${lessonDate.toDateString()} (${daysOfWeek[dayOfWeek]})`);
+    
     dates.push({
       id: `lesson-${Date.now()}-${Math.random()}-${index}`,
       date: lessonDate.toISOString(),
       time: '09:00', // Default time in HH:MM format
       completed: false,
       cancelled: false, // New field for lesson cancellation
+      paid: false, // New field for lesson payment status
       dayName: daysOfWeek[dayOfWeek]
     });
   });
@@ -162,11 +175,21 @@ export const getWeekStartDayOptions = () => {
 export const getLessonsForWeek = (student, currentWeekStart, weekStartDay) => {
   const currentWeekStartDate = new Date(currentWeekStart);
   
-  return student.lessons.filter(lesson => {
+  const filteredLessons = student.lessons.filter(lesson => {
     const lessonDate = new Date(lesson.date);
     const weekStart = getWeekStart(lessonDate, weekStartDay);
     return weekStart.getTime() === currentWeekStartDate.getTime();
   });
+  
+  console.log('getLessonsForWeek:', {
+    studentName: student.name,
+    currentWeekStart: currentWeekStartDate.toDateString(),
+    totalLessons: student.lessons.length,
+    filteredLessons: filteredLessons.length,
+    lessons: filteredLessons.map(l => new Date(l.date).toDateString())
+  });
+  
+  return filteredLessons;
 };
 
 export const getWeeklyView = (student, currentWeekStart, weekStartDay) => {
@@ -174,14 +197,17 @@ export const getWeeklyView = (student, currentWeekStart, weekStartDay) => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const weeklyView = [];
   
-  // Create all 7 days of the week
+  // Get lessons that belong to the current week
+  const currentWeekLessons = getLessonsForWeek(student, currentWeekStart, weekStartDay);
+  
+  // Create all 7 days of the week starting from the week start day
   for (let i = 0; i < 7; i++) {
     const dayDate = addDays(currentWeekStartDate, i);
     const dayOfWeek = dayDate.getDay();
     const dayName = daysOfWeek[dayOfWeek];
     
-    // Find lesson for this day
-    const lessonForDay = student.lessons.find(lesson => {
+    // Find lesson for this day of the week
+    const lessonForDay = currentWeekLessons.find(lesson => {
       const lessonDate = new Date(lesson.date);
       // Check if the lesson date matches this day of the week
       return lessonDate.getDay() === dayOfWeek;
@@ -191,7 +217,10 @@ export const getWeeklyView = (student, currentWeekStart, weekStartDay) => {
       dayOfWeek: dayOfWeek,
       dayName: dayName,
       date: dayDate.toISOString(),
-      lesson: lessonForDay || null,
+      lesson: lessonForDay ? {
+        ...lessonForDay,
+        paid: lessonForDay.paid !== undefined ? lessonForDay.paid : false
+      } : null,
       hasLesson: !!lessonForDay
     });
   }

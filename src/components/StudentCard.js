@@ -18,9 +18,33 @@ const StudentCard = ({
     onUpdateStudent(student.id, { name: e.target.value });
   };
 
-  const handleMonthlyFeeChange = (e) => {
-    const fee = parseInt(e.target.value) || 0;
-    onUpdateStudent(student.id, { monthlyFee: fee });
+  const handleAmountChange = (e) => {
+    const amount = parseInt(e.target.value) || 0;
+    onUpdateStudent(student.id, { amount: amount });
+  };
+
+  const handlePaymentTypeChange = (e) => {
+    onUpdateStudent(student.id, { paymentType: e.target.value });
+  };
+
+  const handleCurrencyChange = (e) => {
+    onUpdateStudent(student.id, { currency: e.target.value });
+  };
+
+  const handleToggleLessonPayment = async (lessonId) => {
+    try {
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? { ...lesson, paid: !lesson.paid }
+          : lesson
+      );
+      
+      // Update the student with the new lessons array
+      await onUpdateStudent(student.id, { lessons: updatedLessons });
+    } catch (error) {
+      console.error('Error toggling lesson payment:', error);
+      alert('Error updating lesson payment status: ' + error.message);
+    }
   };
 
   const handleDayToggle = (dayValue) => {
@@ -48,30 +72,60 @@ const StudentCard = ({
             value={student.name}
             onChange={handleNameChange}
             className="input text-lg font-semibold mb-2"
-            placeholder="Öğrenci Adı"
+            placeholder="Student Name"
           />
           <div className="text-sm text-gray-600">
-            Haftalık ders sayısı: {student.weeklyLessonCount || 0}
+            Weekly lesson count: {student.weeklyLessonCount || 0}
           </div>
-          <div className="mt-2">
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Aylık Ücret (TL):
-            </label>
-            <input
-              type="number"
-              value={student.monthlyFee || 100}
-              onChange={handleMonthlyFeeChange}
-              className="input text-sm w-24"
-              min="0"
-              step="10"
-            />
+          <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Payment Type:
+              </label>
+              <select
+                value={student.paymentType || 'monthly'}
+                onChange={handlePaymentTypeChange}
+                className="input text-xs"
+              >
+                <option value="monthly">Monthly</option>
+                <option value="daily">Daily</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Amount:
+              </label>
+              <input
+                type="number"
+                value={student.amount || 100}
+                onChange={handleAmountChange}
+                className="input text-xs"
+                min="0"
+                step="10"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Currency:
+              </label>
+              <select
+                value={student.currency || 'TRY'}
+                onChange={handleCurrencyChange}
+                className="input text-xs"
+              >
+                <option value="TRY">TRY</option>
+                <option value="RUB">RUB</option>
+                <option value="AZN">AZN</option>
+                <option value="USD">USD</option>
+              </select>
+            </div>
           </div>
         </div>
         <button
           onClick={() => onDeleteStudent(student.id)}
           className="btn btn-danger text-sm"
         >
-          Sil
+          Delete
         </button>
       </div>
       
@@ -85,10 +139,12 @@ const StudentCard = ({
       
       <WeeklyView 
         weeklyView={getWeeklyView(student, currentWeekStart, weekStartDay)} 
+        student={student}
         onToggleLesson={(lessonId) => onToggleLesson(student.id, lessonId)}
         onUpdateLessonTime={(lessonId, time) => onUpdateLessonTime(student.id, lessonId, time)}
         onToggleLessonCancellation={(lessonId) => onToggleLessonCancellation(student.id, lessonId)}
         onLessonStatusChange={(lessonId, status) => onLessonStatusChange(student.id, lessonId, status)}
+        onToggleLessonPayment={handleToggleLessonPayment}
       />
     </div>
   );

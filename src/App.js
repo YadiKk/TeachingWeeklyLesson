@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useGroup } from './hooks/useGroup';
 import { addStudent, updateStudent, deleteStudent } from './firebase/lessonService';
 import { generateLessonDates, getWeekStart, getTodaysLessons, getPreviousWeek, getNextWeek } from './utils/dateUtils';
@@ -32,7 +32,7 @@ function App() {
   const handleAddStudent = async (newStudent) => {
     try {
       if (!currentGroup) {
-        alert('Önce bir gruba katılın veya grup oluşturun');
+        alert('Please join a group or create a group first');
         return;
       }
       
@@ -49,11 +49,11 @@ function App() {
       const result = await addStudent(currentGroup, studentData);
       
       if (!result.success) {
-        alert('Öğrenci eklenirken hata oluştu: ' + result.error);
+        alert('Error adding student: ' + result.error);
       }
     } catch (error) {
       console.error('Error adding student:', error);
-      alert('Öğrenci eklenirken hata oluştu: ' + error.message);
+      alert('Error adding student: ' + error.message);
     }
   };
 
@@ -61,23 +61,33 @@ function App() {
     if (!currentGroup) return;
     
     let updatedStudent = { ...updates };
+    
+    // If selectedDays are being updated, regenerate lessons for current week only
     if (updates.selectedDays && updates.selectedDays.length > 0) {
       updatedStudent.lessons = generateLessonDates(new Date(currentWeekStart), updates.selectedDays, weekStartDay);
+    }
+    
+    // Ensure all lessons have the paid property for daily payment students
+    if (updates.lessons) {
+      updatedStudent.lessons = updates.lessons.map(lesson => ({
+        ...lesson,
+        paid: lesson.paid !== undefined ? lesson.paid : false
+      }));
     }
     
     await updateStudent(studentId, updatedStudent);
   };
 
   const handleDeleteStudent = async (studentId) => {
-    if (window.confirm('Bu öğrenciyi silmek istediğinizden emin misiniz?')) {
+    if (window.confirm('Are you sure you want to delete this student?')) {
       try {
         const result = await deleteStudent(studentId);
         if (!result.success) {
-          alert('Öğrenci silinirken hata oluştu: ' + result.error);
+          alert('Error deleting student: ' + result.error);
         }
       } catch (error) {
         console.error('Error deleting student:', error);
-        alert('Öğrenci silinirken hata oluştu: ' + error.message);
+        alert('Error deleting student: ' + error.message);
       }
     }
   };
@@ -95,11 +105,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Ders güncellenirken hata oluştu: ' + result.error);
+        alert('Error updating lesson: ' + result.error);
       }
     } catch (error) {
       console.error('Error toggling lesson:', error);
-      alert('Ders güncellenirken hata oluştu: ' + error.message);
+      alert('Error updating lesson: ' + error.message);
     }
   };
 
@@ -116,11 +126,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Ders saati güncellenirken hata oluştu: ' + result.error);
+        alert('Error updating lesson time: ' + result.error);
       }
     } catch (error) {
       console.error('Error updating lesson time:', error);
-      alert('Ders saati güncellenirken hata oluştu: ' + error.message);
+      alert('Error updating lesson time: ' + error.message);
     }
   };
 
@@ -137,11 +147,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Ders iptal durumu güncellenirken hata oluştu: ' + result.error);
+        alert('Error updating lesson cancellation status: ' + result.error);
       }
     } catch (error) {
       console.error('Error toggling lesson cancellation:', error);
-      alert('Ders iptal durumu güncellenirken hata oluştu: ' + error.message);
+      alert('Error updating lesson cancellation status: ' + error.message);
     }
   };
 
@@ -162,11 +172,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Ders durumu güncellenirken hata oluştu: ' + result.error);
+        alert('Error changing lesson status: ' + result.error);
       }
     } catch (error) {
       console.error('Error changing lesson status:', error);
-      alert('Ders durumu güncellenirken hata oluştu: ' + error.message);
+      alert('Error changing lesson status: ' + error.message);
     }
   };
 
@@ -183,11 +193,11 @@ function App() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert('Ders geri yüklenirken hata oluştu: ' + result.error);
+        alert('Error restoring lesson: ' + result.error);
       }
     } catch (error) {
       console.error('Error restoring lesson:', error);
-      alert('Ders geri yüklenirken hata oluştu: ' + error.message);
+      alert('Error restoring lesson: ' + error.message);
     }
   };
 
@@ -206,11 +216,11 @@ function App() {
       });
       
       if (!result.success) {
-        alert('Hafta güncellenirken hata oluştu: ' + result.error);
+        alert('Error updating week: ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week:', error);
-      alert('Hafta güncellenirken hata oluştu: ' + error.message);
+      alert('Error updating week: ' + error.message);
     }
   };
 
@@ -225,11 +235,11 @@ function App() {
       });
       
       if (!result.success) {
-        alert('Hafta güncellenirken hata oluştu: ' + result.error);
+        alert('Error updating week: ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week:', error);
-      alert('Hafta güncellenirken hata oluştu: ' + error.message);
+      alert('Error updating week: ' + error.message);
     }
   };
 
@@ -244,17 +254,27 @@ function App() {
       });
       
       if (!result.success) {
-        alert('Hafta başlangıç günü güncellenirken hata oluştu: ' + result.error);
+        alert('Error updating week start day: ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week start day:', error);
-      alert('Hafta başlangıç günü güncellenirken hata oluştu: ' + error.message);
+      alert('Error updating week start day: ' + error.message);
     }
   };
 
-  const todaysLessons = getTodaysLessons(students, currentWeekStart, weekStartDay);
+  // Ensure all students have proper payment type and lesson paid properties
+  const migratedStudents = students.map(student => ({
+    ...student,
+    paymentType: student.paymentType || 'monthly',
+    lessons: student.lessons.map(lesson => ({
+      ...lesson,
+      paid: lesson.paid !== undefined ? lesson.paid : false
+    }))
+  }));
+
+  const todaysLessons = getTodaysLessons(migratedStudents, currentWeekStart, weekStartDay);
   
-  const cancelledLessons = students.flatMap(student => 
+  const cancelledLessons = migratedStudents.flatMap(student => 
     student.lessons
       .filter(lesson => lesson.cancelled)
       .map(lesson => ({
@@ -271,12 +291,12 @@ function App() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Ders Takip Sistemi</h1>
-              <p className="text-gray-600">Öğrenci dersleri ve ödemeleri yönetimi</p>
+              <h1 className="text-2xl font-bold text-gray-900">Lesson Tracking System</h1>
+              <p className="text-gray-600">Student lessons and payment management</p>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                {students.length} öğrenci • {cancelledLessons.length} iptal
+                {migratedStudents.length} students • {cancelledLessons.length} cancelled
               </span>
             </div>
           </div>
@@ -318,8 +338,10 @@ function App() {
               />
               
               <PaymentManager
-                students={students}
+                students={migratedStudents}
                 currentGroup={currentGroup}
+                weekStartDay={weekStartDay}
+                currentWeekStart={currentWeekStart}
               />
               
               <AddStudentForm 
@@ -328,32 +350,69 @@ function App() {
                 currentWeekStart={currentWeekStart}
               />
               
-              {students.length === 0 ? (
+              {migratedStudents.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                   <div className="text-gray-400 mb-4">
                     <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">Henüz Öğrenci Yok</h3>
-                  <p className="text-gray-600">İlk öğrencinizi ekleyerek başlayın.</p>
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">No Students Yet</h3>
+                  <p className="text-gray-600">Start by adding your first student.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {students.map(student => (
-                    <StudentCard
-                      key={student.id}
-                      student={student}
-                      onUpdateStudent={handleUpdateStudent}
-                      onDeleteStudent={handleDeleteStudent}
-                      onToggleLesson={handleToggleLesson}
-                      onUpdateLessonTime={handleUpdateLessonTime}
-                      onToggleLessonCancellation={handleToggleLessonCancellation}
-                      onLessonStatusChange={handleLessonStatusChange}
-                      weekStartDay={weekStartDay}
-                      currentWeekStart={currentWeekStart}
-                    />
-                  ))}
+                <div className="space-y-6">
+                  {/* Monthly Payment Students */}
+                  {migratedStudents.filter(student => student.paymentType === 'monthly').length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                        Monthly Payment Students
+                      </h3>
+                      <div className="space-y-4">
+                        {migratedStudents.filter(student => student.paymentType === 'monthly').map(student => (
+                          <StudentCard
+                            key={student.id}
+                            student={student}
+                            onUpdateStudent={handleUpdateStudent}
+                            onDeleteStudent={handleDeleteStudent}
+                            onToggleLesson={handleToggleLesson}
+                            onUpdateLessonTime={handleUpdateLessonTime}
+                            onToggleLessonCancellation={handleToggleLessonCancellation}
+                            onLessonStatusChange={handleLessonStatusChange}
+                            weekStartDay={weekStartDay}
+                            currentWeekStart={currentWeekStart}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Daily Payment Students */}
+                  {migratedStudents.filter(student => student.paymentType === 'daily').length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                        Daily Payment Students
+                      </h3>
+                      <div className="space-y-4">
+                        {migratedStudents.filter(student => student.paymentType === 'daily').map(student => (
+                          <StudentCard
+                            key={student.id}
+                            student={student}
+                            onUpdateStudent={handleUpdateStudent}
+                            onDeleteStudent={handleDeleteStudent}
+                            onToggleLesson={handleToggleLesson}
+                            onUpdateLessonTime={handleUpdateLessonTime}
+                            onToggleLessonCancellation={handleToggleLessonCancellation}
+                            onLessonStatusChange={handleLessonStatusChange}
+                            weekStartDay={weekStartDay}
+                            currentWeekStart={currentWeekStart}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

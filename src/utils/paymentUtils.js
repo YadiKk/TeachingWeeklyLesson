@@ -15,18 +15,36 @@ export const getMonthYearString = (month, year) => {
   return date.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
 };
 
-export const calculateMonthlyFee = (student, monthlyRate = null) => {
-  // Use custom monthly fee if provided, otherwise calculate based on lessons
-  const customFee = student.monthlyFee || monthlyRate || 100;
+export const calculatePaymentAmount = (student, paymentType = null) => {
+  const studentPaymentType = paymentType || student.paymentType || 'monthly';
+  const amount = student.amount || 100;
+  const currency = student.currency || 'TRY';
   const lessonsPerWeek = student.selectedDays?.length || 0;
   const weeksInMonth = 4.33; // Average weeks per month
+  const totalLessons = Math.round(lessonsPerWeek * weeksInMonth);
+  
+  let calculatedAmount = amount;
+  let displayText = '';
+  
+  if (studentPaymentType === 'daily') {
+    // For daily payments, calculate monthly amount
+    calculatedAmount = amount * totalLessons;
+    displayText = `${amount} ${currency}/gün (${totalLessons} ders)`;
+  } else {
+    // For monthly payments
+    calculatedAmount = amount;
+    displayText = `${amount} ${currency}/ay`;
+  }
   
   return {
-    monthlyRate: customFee,
+    paymentType: studentPaymentType,
+    amount: amount,
+    currency: currency,
+    calculatedAmount: calculatedAmount,
+    displayText: displayText,
     lessonsPerWeek,
-    totalLessons: Math.round(lessonsPerWeek * weeksInMonth),
-    calculatedFee: customFee,
-    lessonRate: lessonsPerWeek > 0 ? Math.round((customFee / (lessonsPerWeek * weeksInMonth)) * 100) / 100 : 0
+    totalLessons,
+    lessonRate: lessonsPerWeek > 0 ? Math.round((calculatedAmount / totalLessons) * 100) / 100 : 0
   };
 };
 
@@ -37,15 +55,43 @@ export const calculateStudentPaymentStatus = (student, monthlyPayments, currentM
                payment.year === currentYear
   );
   
-  const feeCalculation = calculateMonthlyFee(student);
+  const paymentCalculation = calculatePaymentAmount(student);
+  
+  // For daily payments, check individual lesson payments
+  let isPaid = false;
+  let paidLessons = 0;
+  let totalLessons = 0;
+  
+  if (student.paymentType === 'daily' && student.lessons) {
+    // Filter lessons for current month
+    const currentWeekStart = new Date(currentMonth, 0, 1);
+    const nextMonthStart = new Date(currentMonth, 1, 1);
+    
+    const currentMonthLessons = student.lessons.filter(lesson => {
+      const lessonDate = new Date(lesson.date);
+      return lessonDate >= currentWeekStart && lessonDate < nextMonthStart;
+    });
+    
+    totalLessons = currentMonthLessons.length;
+    paidLessons = currentMonthLessons.filter(lesson => lesson.paid).length;
+    isPaid = paidLessons === totalLessons && totalLessons > 0;
+  } else {
+    // For monthly payments, use the existing logic
+    isPaid = !!monthlyPayment?.isPaid;
+  }
   
   return {
     studentId: student.id,
     studentName: student.name,
-    monthlyFee: feeCalculation.calculatedFee,
-    lessonsPerWeek: feeCalculation.lessonsPerWeek,
-    totalLessons: feeCalculation.totalLessons,
-    isPaid: !!monthlyPayment?.isPaid,
+    paymentType: paymentCalculation.paymentType,
+    amount: paymentCalculation.amount,
+    currency: paymentCalculation.currency,
+    calculatedAmount: paymentCalculation.calculatedAmount,
+    displayText: paymentCalculation.displayText,
+    lessonsPerWeek: paymentCalculation.lessonsPerWeek,
+    totalLessons: paymentCalculation.totalLessons,
+    paidLessons: paidLessons,
+    isPaid: isPaid,
     paymentDate: monthlyPayment?.paymentDate || null,
     paymentMethod: monthlyPayment?.paymentMethod || null,
     notes: monthlyPayment?.notes || '',
@@ -62,10 +108,10 @@ export const getPaymentSummary = (students, monthlyPayments, currentMonth, curre
   const paidStudents = paymentStatuses.filter(status => status.isPaid).length;
   const unpaidStudents = totalStudents - paidStudents;
   
-  const totalExpectedRevenue = paymentStatuses.reduce((sum, status) => sum + status.monthlyFee, 0);
+  const totalExpectedRevenue = paymentStatuses.reduce((sum, status) => sum + status.calculatedAmount, 0);
   const totalPaidRevenue = paymentStatuses
     .filter(status => status.isPaid)
-    .reduce((sum, status) => sum + status.monthlyFee, 0);
+    .reduce((sum, status) => sum + status.calculatedAmount, 0);
   const totalUnpaidRevenue = totalExpectedRevenue - totalPaidRevenue;
   
   return {
@@ -80,10 +126,19 @@ export const getPaymentSummary = (students, monthlyPayments, currentMonth, curre
   };
 };
 
-export const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('tr-TR', {
+export const formatCurrency = (amount, currency = 'TRY') => {
+  const currencyMap = {
+    'TRY': 'tr-TR',
+    'RUB': 'ru-RU',
+    'AZN': 'az-AZ',
+    'USD': 'en-US'
+  };
+  
+  const locale = currencyMap[currency] || 'tr-TR';
+  
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'TRY'
+    currency: currency
   }).format(amount);
 };
 

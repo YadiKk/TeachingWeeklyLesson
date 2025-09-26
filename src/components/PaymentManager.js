@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   subscribeToMonthlyPayments, 
   createMonthlyPayment, 
   updateMonthlyPayment 
 } from '../firebase/paymentService';
+import { updateStudent } from '../firebase/lessonService';
 import { 
   getCurrentMonthYear, 
   getPaymentSummary, 
-  calculateStudentPaymentStatus 
+  calculateStudentPaymentStatus,
+  formatCurrency
 } from '../utils/paymentUtils';
+import { getWeekStart, getLessonsForWeek } from '../utils/dateUtils';
 import PaymentSummary from './PaymentSummary';
 import PaymentStatus from './PaymentStatus';
 import PaymentModal from './PaymentModal';
 
-const PaymentManager = ({ students, currentGroup }) => {
+const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekStart }) => {
   const [monthlyPayments, setMonthlyPayments] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthYear().month);
   const [selectedYear, setSelectedYear] = useState(getCurrentMonthYear().year);
@@ -36,11 +39,21 @@ const PaymentManager = ({ students, currentGroup }) => {
     return unsubscribe;
   }, [currentGroup, selectedMonth, selectedYear]);
 
-  const paymentStatuses = students.map(student => 
+  // Separate students by payment type
+  const monthlyStudents = useMemo(() => 
+    students.filter(student => student.paymentType === 'monthly'), 
+    [students]
+  );
+  const dailyStudents = useMemo(() => 
+    students.filter(student => student.paymentType === 'daily'), 
+    [students]
+  );
+
+  const monthlyPaymentStatuses = monthlyStudents.map(student => 
     calculateStudentPaymentStatus(student, monthlyPayments, selectedMonth, selectedYear)
   );
 
-  const paymentSummary = getPaymentSummary(students, monthlyPayments, selectedMonth, selectedYear);
+  const monthlyPaymentSummary = getPaymentSummary(monthlyStudents, monthlyPayments, selectedMonth, selectedYear);
 
   const handleMarkAsPaid = async (studentId) => {
     setLoading(true);
@@ -61,7 +74,7 @@ const PaymentManager = ({ students, currentGroup }) => {
         await createMonthlyPayment(currentGroup, studentId, selectedMonth, selectedYear, {
           isPaid: true,
           paymentDate: new Date().toISOString(),
-          monthlyFee: student.monthlyFee || calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).monthlyFee
+          monthlyFee: calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).calculatedAmount
         });
       }
     } catch (error) {
@@ -119,7 +132,7 @@ const PaymentManager = ({ students, currentGroup }) => {
           paymentDate: paymentData.paymentDate,
           paymentMethod: paymentData.paymentMethod,
           notes: paymentData.notes,
-          monthlyFee: student.monthlyFee || calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).monthlyFee
+          monthlyFee: calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).calculatedAmount
         });
       }
     } catch (error) {
@@ -127,6 +140,25 @@ const PaymentManager = ({ students, currentGroup }) => {
       alert('Ödeme kaydedilirken hata oluştu: ' + error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDailyPaymentToggle = async (studentId, lessonId) => {
+    try {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      const updatedLessons = student.lessons.map(lesson =>
+        lesson.id === lessonId
+          ? { ...lesson, paid: !lesson.paid }
+          : lesson
+      );
+      
+      // Update the student with the new lessons array
+      await updateStudent(studentId, { lessons: updatedLessons });
+    } catch (error) {
+      console.error('Error toggling daily payment:', error);
+      alert('Ders ödeme durumu güncellenirken hata oluştu: ' + error.message);
     }
   };
 
@@ -166,14 +198,17 @@ const PaymentManager = ({ students, currentGroup }) => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Month/Year Selector */}
-      <div className="card">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
-          <div className="flex items-center space-x-4">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Aylık Ödeme Yönetimi
-            </h3>
+    <div className="space-y-6">
+      {/* Monthly Payment Management */}
+      {monthlyStudents.length > 0 && (
+        <div className="space-y-4">
+          {/* Month/Year Selector */}
+          <div className="card">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+              <div className="flex items-center space-x-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Aylık Ödeme Yönetimi
+                </h3>
             <div className="flex items-center space-x-2">
               <label className="text-sm font-medium text-gray-700">
                 Ay/Yıl:
@@ -205,37 +240,158 @@ const PaymentManager = ({ students, currentGroup }) => {
         </div>
       </div>
 
-      {/* Payment Summary */}
-      <PaymentSummary 
-        summary={paymentSummary} 
-        currentMonth={selectedMonth} 
-        currentYear={selectedYear} 
-      />
+          {/* Payment Summary */}
+          <PaymentSummary 
+            summary={monthlyPaymentSummary} 
+            currentMonth={selectedMonth} 
+            currentYear={selectedYear} 
+          />
 
-      {/* Payment Status List */}
-      <div className="space-y-3">
-        <h4 className="text-md font-semibold text-gray-800">
-          Öğrenci Ödeme Durumları
-        </h4>
-        
-        {paymentStatuses.length === 0 ? (
-          <div className="card text-center">
-            <p className="text-gray-500 text-sm">Bu ay için öğrenci bulunamadı.</p>
+          {/* Payment Status List */}
+          <div className="space-y-3">
+            <h4 className="text-md font-semibold text-gray-800">
+              Aylık Ödemeli Öğrenciler
+            </h4>
+            
+            {monthlyPaymentStatuses.length === 0 ? (
+              <div className="card text-center">
+                <p className="text-gray-500 text-sm">Bu ay için aylık ödemeli öğrenci bulunamadı.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {monthlyPaymentStatuses.map((paymentStatus) => (
+                  <PaymentStatus
+                    key={paymentStatus.studentId}
+                    paymentStatus={paymentStatus}
+                    onMarkAsPaid={handleMarkAsPaid}
+                    onMarkAsUnpaid={handleMarkAsUnpaid}
+                    onEditPayment={handleEditPayment}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {paymentStatuses.map((paymentStatus) => (
-              <PaymentStatus
-                key={paymentStatus.studentId}
-                paymentStatus={paymentStatus}
-                onMarkAsPaid={handleMarkAsPaid}
-                onMarkAsUnpaid={handleMarkAsUnpaid}
-                onEditPayment={handleEditPayment}
-              />
-            ))}
+        </div>
+      )}
+
+      {/* Daily Payment Management */}
+      {dailyStudents.length > 0 && (
+        <div className="space-y-4">
+          <div className="card">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Günlük Ödeme Yönetimi
+            </h3>
+            <p className="text-sm text-gray-600 mt-2">
+              Günlük ödemeli öğrenciler için ders bazında ödeme takibi yapılır.
+            </p>
           </div>
-        )}
-      </div>
+
+          <div className="space-y-3">
+            <h4 className="text-md font-semibold text-gray-800">
+              Günlük Ödemeli Öğrenciler
+            </h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {dailyStudents.map((student) => {
+                const currentWeekLessons = getLessonsForWeek(student, currentWeekStart, weekStartDay);
+                
+                const paidLessons = currentWeekLessons.filter(lesson => lesson.paid).length;
+                const totalLessons = currentWeekLessons.length;
+                const totalAmount = totalLessons * (student.amount || 0);
+                const paidAmount = paidLessons * (student.amount || 0);
+                
+                return (
+                  <div key={student.id} className="card border-2 border-gray-200 hover:border-blue-300 transition-colors">
+                    {/* Header with student info */}
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h5 className="font-semibold text-gray-900 text-lg">{student.name}</h5>
+                        <p className="text-sm text-gray-600">
+                          {formatCurrency(student.amount || 0, student.currency || 'TRY')}/ders
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-blue-600">{paidLessons}/{totalLessons}</div>
+                        <div className="text-xs text-gray-500">ders ödendi</div>
+                      </div>
+                    </div>
+
+                    {/* Payment Summary */}
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <div className="text-gray-600">Toplam Tutar:</div>
+                          <div className="font-semibold text-gray-900">{formatCurrency(totalAmount, student.currency || 'TRY')}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Ödenen:</div>
+                          <div className="font-semibold text-green-600">{formatCurrency(paidAmount, student.currency || 'TRY')}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Kalan:</div>
+                          <div className="font-semibold text-red-600">{formatCurrency(totalAmount - paidAmount, student.currency || 'TRY')}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">İlerleme:</div>
+                          <div className="font-semibold text-blue-600">%{totalLessons > 0 ? Math.round((paidLessons / totalLessons) * 100) : 0}</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>Ödeme İlerlemesi</span>
+                        <span>{paidLessons}/{totalLessons} ders</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-green-400 to-green-500 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${totalLessons > 0 ? (paidLessons / totalLessons) * 100 : 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {/* Daily Payment Buttons */}
+                    <div className="space-y-3">
+                      <h6 className="text-sm font-semibold text-gray-800 text-center">Bu Haftaki Dersler - Ödeme Butonları</h6>
+                      <div className="grid grid-cols-2 gap-2">
+                        {currentWeekLessons.map((lesson) => {
+                          const lessonDate = new Date(lesson.date);
+                          const dayName = lessonDate.toLocaleDateString('tr-TR', { weekday: 'short' });
+                          const dayNumber = lessonDate.getDate();
+                          return (
+                            <button
+                              key={lesson.id}
+                              onClick={() => handleDailyPaymentToggle(student.id, lesson.id)}
+                              className={`px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
+                                lesson.paid
+                                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-lg'
+                                  : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-700 border-2 border-gray-300 hover:border-blue-400'
+                              }`}
+                              title={lesson.paid ? 'Ödendi - Tıklayarak iptal et' : 'Ödenmedi - Tıklayarak öde'}
+                            >
+                              <div className="font-bold">{dayName}</div>
+                              <div className="text-xs">{dayNumber}</div>
+                              <div className="text-lg">{lesson.paid ? '✓' : '○'}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      {currentWeekLessons.length === 0 && (
+                        <div className="text-center py-4 text-gray-500 text-sm">
+                          Bu hafta ders yok
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Payment Modal */}
       <PaymentModal

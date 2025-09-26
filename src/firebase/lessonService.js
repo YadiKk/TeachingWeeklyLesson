@@ -20,6 +20,7 @@ const STUDENTS_COLLECTION = 'students';
 // Group management functions
 export const createGroup = async (pin) => {
   try {
+    console.log('Firebase createGroup called with pin:', pin);
     const groupRef = doc(db, GROUPS_COLLECTION, pin);
     const groupData = {
       pin,
@@ -30,7 +31,9 @@ export const createGroup = async (pin) => {
       }
     };
     
+    console.log('Creating group document:', groupData);
     await setDoc(groupRef, groupData);
+    console.log('Group created successfully with ID:', pin);
     return { success: true, groupId: pin };
   } catch (error) {
     console.error('Error creating group:', error);

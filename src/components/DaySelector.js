@@ -2,19 +2,19 @@ import React from 'react';
 
 const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
   const daysOfWeek = [
-    { value: 0, label: 'Pazar', short: 'Paz' },
-    { value: 1, label: 'Pazartesi', short: 'Pzt' },
-    { value: 2, label: 'Salı', short: 'Sal' },
-    { value: 3, label: 'Çarşamba', short: 'Çar' },
-    { value: 4, label: 'Perşembe', short: 'Per' },
-    { value: 5, label: 'Cuma', short: 'Cum' },
-    { value: 6, label: 'Cumartesi', short: 'Cmt' }
+    { value: 0, label: 'Sunday', short: 'Sun' },
+    { value: 1, label: 'Monday', short: 'Mon' },
+    { value: 2, label: 'Tuesday', short: 'Tue' },
+    { value: 3, label: 'Wednesday', short: 'Wed' },
+    { value: 4, label: 'Thursday', short: 'Thu' },
+    { value: 5, label: 'Friday', short: 'Fri' },
+    { value: 6, label: 'Saturday', short: 'Sat' }
   ];
 
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-gray-700">
-        Ders Günleri Seçin:
+        Select Lesson Days:
       </label>
       <div className="grid grid-cols-4 gap-2">
         {daysOfWeek.map((day) => (
@@ -34,7 +34,7 @@ const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
         ))}
       </div>
       <p className="text-xs text-gray-500">
-        {selectedDays.length} gün seçildi
+        {selectedDays.length} days selected
       </p>
     </div>
   );

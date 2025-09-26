@@ -1,12 +1,13 @@
 import React from 'react';
 import { formatDate, formatTime } from '../utils/dateUtils';
+import { formatCurrency } from '../utils/paymentUtils';
 import TimeSelector from './TimeSelector';
 import LessonStatusSelector from './LessonStatusSelector';
 
-const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange }) => {
+const WeeklyView = ({ weeklyView, student, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange, onToggleLessonPayment }) => {
   return (
     <div className="space-y-3">
-      <h4 className="text-md font-medium text-gray-700">Bu Haftanın Programı</h4>
+      <h4 className="text-md font-medium text-gray-700">This Week's Schedule</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-2">
         {weeklyView.map((dayData) => (
           <div
@@ -40,7 +41,7 @@ const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLe
                     <div className={`font-medium ${
                       dayData.lesson.cancelled ? 'text-red-600 line-through' : 'text-gray-900'
                     }`}>
-                      {dayData.lesson.cancelled ? 'İptal' : 'Planlandı'}
+                      {dayData.lesson.cancelled ? 'Cancelled' : 'Scheduled'}
                     </div>
                   </div>
                   
@@ -49,10 +50,39 @@ const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLe
                     onChange={onUpdateLessonTime}
                     lessonId={dayData.lesson.id}
                   />
+                  
+                  {/* Daily Payment Status */}
+                  {student?.paymentType === 'daily' && (
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-600">
+                          {formatCurrency(student.amount || 0, student.currency || 'TRY')}
+                        </span>
+                        <button
+                          onClick={() => {
+                            if (onToggleLessonPayment) {
+                              onToggleLessonPayment(dayData.lesson.id);
+                            }
+                          }}
+                          className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                            dayData.lesson.paid 
+                              ? 'bg-green-500 text-white hover:bg-green-600' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                          }`}
+                          title={dayData.lesson.paid ? 'Paid - Click to cancel' : 'Not paid - Click to pay'}
+                        >
+                          {dayData.lesson.paid ? '✓ Paid' : 'Pay'}
+                        </button>
+                      </div>
+                      <div className="text-xs text-gray-500 text-center">
+                        {dayData.lesson.paid ? 'Payment completed' : 'Payment pending'}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-xs text-gray-400 italic">
-                  Ders yok
+                  No lesson
                 </div>
               )}
             </div>
