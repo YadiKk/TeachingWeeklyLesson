@@ -18,6 +18,11 @@ const StudentCard = ({
     onUpdateStudent(student.id, { name: e.target.value });
   };
 
+  const handleMonthlyFeeChange = (e) => {
+    const fee = parseInt(e.target.value) || 0;
+    onUpdateStudent(student.id, { monthlyFee: fee });
+  };
+
   const handleDayToggle = (dayValue) => {
     const currentDays = student.selectedDays || [];
     let newDays;
@@ -47,6 +52,19 @@ const StudentCard = ({
           />
           <div className="text-sm text-gray-600">
             Haftalık ders sayısı: {student.weeklyLessonCount || 0}
+          </div>
+          <div className="mt-2">
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Aylık Ücret (TL):
+            </label>
+            <input
+              type="number"
+              value={student.monthlyFee || 100}
+              onChange={handleMonthlyFeeChange}
+              className="input text-sm w-24"
+              min="0"
+              step="10"
+            />
           </div>
         </div>
         <button

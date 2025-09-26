@@ -23,7 +23,7 @@ function App() {
     updateSettings 
   } = useGroup();
   
-  const [showDashboard, setShowDashboard] = useState(true);
+  // Removed dashboard toggle - keeping only simple view
   
   // Get settings from group or use defaults
   const currentWeekStart = groupSettings?.settings?.currentWeekStart || getWeekStart().toISOString();
@@ -278,12 +278,6 @@ function App() {
               <span className="text-sm text-gray-500">
                 {students.length} öğrenci • {cancelledLessons.length} iptal
               </span>
-              <button
-                onClick={() => setShowDashboard(!showDashboard)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                {showDashboard ? 'Basit Görünüm' : 'Dashboard'}
-              </button>
             </div>
           </div>
         </div>
@@ -309,125 +303,60 @@ function App() {
               onWeekStartDayChange={handleWeekStartDayChange}
             />
             
-            {showDashboard ? (
-              // Dashboard View
-              <div className="space-y-6">
-                {/* Payment Management */}
-                <PaymentManager
-                  students={students}
-                  currentGroup={currentGroup}
-                />
-
-                {/* Today's Lessons and Cancelled Lessons */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <TodaysLessons 
-                    todaysLessons={todaysLessons}
-                    onToggleLesson={handleToggleLesson}
-                    onToggleLessonCancellation={handleToggleLessonCancellation}
-                  />
-                  <CancelledLessons
-                    cancelledLessons={cancelledLessons}
-                    onRescheduleLesson={handleRescheduleLesson}
-                    onRestoreLesson={handleRestoreLesson}
-                  />
+            {/* Simple View Only */}
+            <div className="space-y-6">
+              <TodaysLessons 
+                todaysLessons={todaysLessons}
+                onToggleLesson={handleToggleLesson}
+                onToggleLessonCancellation={handleToggleLessonCancellation}
+              />
+              
+              <CancelledLessons
+                cancelledLessons={cancelledLessons}
+                onRescheduleLesson={handleRescheduleLesson}
+                onRestoreLesson={handleRestoreLesson}
+              />
+              
+              <PaymentManager
+                students={students}
+                currentGroup={currentGroup}
+              />
+              
+              <AddStudentForm 
+                onAddStudent={handleAddStudent}
+                weekStartDay={weekStartDay}
+                currentWeekStart={currentWeekStart}
+              />
+              
+              {students.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                  <div className="text-gray-400 mb-4">
+                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">Henüz Öğrenci Yok</h3>
+                  <p className="text-gray-600">İlk öğrencinizi ekleyerek başlayın.</p>
                 </div>
-
-                {/* Add Student Form */}
-                <AddStudentForm 
-                  onAddStudent={handleAddStudent}
-                  weekStartDay={weekStartDay}
-                  currentWeekStart={currentWeekStart}
-                />
-
-                {/* Student Cards */}
-                {students.length === 0 ? (
-                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                    <div className="text-gray-400 mb-4">
-                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-2">Henüz Öğrenci Yok</h3>
-                    <p className="text-gray-600">İlk öğrencinizi ekleyerek başlayın.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Öğrenci Haftalık Programları</h2>
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                      {students.map(student => (
-                        <StudentCard
-                          key={student.id}
-                          student={student}
-                          onUpdateStudent={handleUpdateStudent}
-                          onDeleteStudent={handleDeleteStudent}
-                          onToggleLesson={handleToggleLesson}
-                          onUpdateLessonTime={handleUpdateLessonTime}
-                          onToggleLessonCancellation={handleToggleLessonCancellation}
-                          onLessonStatusChange={handleLessonStatusChange}
-                          weekStartDay={weekStartDay}
-                          currentWeekStart={currentWeekStart}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              // Simple View
-              <div className="space-y-6">
-                <TodaysLessons 
-                  todaysLessons={todaysLessons}
-                  onToggleLesson={handleToggleLesson}
-                  onToggleLessonCancellation={handleToggleLessonCancellation}
-                />
-                
-                <CancelledLessons
-                  cancelledLessons={cancelledLessons}
-                  onRescheduleLesson={handleRescheduleLesson}
-                  onRestoreLesson={handleRestoreLesson}
-                />
-                
-                <PaymentManager
-                  students={students}
-                  currentGroup={currentGroup}
-                />
-                
-                <AddStudentForm 
-                  onAddStudent={handleAddStudent}
-                  weekStartDay={weekStartDay}
-                  currentWeekStart={currentWeekStart}
-                />
-                
-                {students.length === 0 ? (
-                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                    <div className="text-gray-400 mb-4">
-                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-2">Henüz Öğrenci Yok</h3>
-                    <p className="text-gray-600">İlk öğrencinizi ekleyerek başlayın.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {students.map(student => (
-                      <StudentCard
-                        key={student.id}
-                        student={student}
-                        onUpdateStudent={handleUpdateStudent}
-                        onDeleteStudent={handleDeleteStudent}
-                        onToggleLesson={handleToggleLesson}
-                        onUpdateLessonTime={handleUpdateLessonTime}
-                        onToggleLessonCancellation={handleToggleLessonCancellation}
-                        onLessonStatusChange={handleLessonStatusChange}
-                        weekStartDay={weekStartDay}
-                        currentWeekStart={currentWeekStart}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+              ) : (
+                <div className="space-y-4">
+                  {students.map(student => (
+                    <StudentCard
+                      key={student.id}
+                      student={student}
+                      onUpdateStudent={handleUpdateStudent}
+                      onDeleteStudent={handleDeleteStudent}
+                      onToggleLesson={handleToggleLesson}
+                      onUpdateLessonTime={handleUpdateLessonTime}
+                      onToggleLessonCancellation={handleToggleLessonCancellation}
+                      onLessonStatusChange={handleLessonStatusChange}
+                      weekStartDay={weekStartDay}
+                      currentWeekStart={currentWeekStart}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

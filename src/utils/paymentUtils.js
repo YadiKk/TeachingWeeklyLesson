@@ -15,18 +15,18 @@ export const getMonthYearString = (month, year) => {
   return date.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
 };
 
-export const calculateMonthlyFee = (student, monthlyRate = 100) => {
-  // Calculate based on number of lessons per week
+export const calculateMonthlyFee = (student, monthlyRate = null) => {
+  // Use custom monthly fee if provided, otherwise calculate based on lessons
+  const customFee = student.monthlyFee || monthlyRate || 100;
   const lessonsPerWeek = student.selectedDays?.length || 0;
   const weeksInMonth = 4.33; // Average weeks per month
-  const lessonRate = monthlyRate / (lessonsPerWeek * weeksInMonth);
   
   return {
-    monthlyRate,
+    monthlyRate: customFee,
     lessonsPerWeek,
     totalLessons: Math.round(lessonsPerWeek * weeksInMonth),
-    calculatedFee: Math.round(lessonsPerWeek * weeksInMonth * lessonRate),
-    lessonRate: Math.round(lessonRate * 100) / 100
+    calculatedFee: customFee,
+    lessonRate: lessonsPerWeek > 0 ? Math.round((customFee / (lessonsPerWeek * weeksInMonth)) * 100) / 100 : 0
   };
 };
 

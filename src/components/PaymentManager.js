@@ -61,7 +61,7 @@ const PaymentManager = ({ students, currentGroup }) => {
         await createMonthlyPayment(currentGroup, studentId, selectedMonth, selectedYear, {
           isPaid: true,
           paymentDate: new Date().toISOString(),
-          monthlyFee: calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).monthlyFee
+          monthlyFee: student.monthlyFee || calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).monthlyFee
         });
       }
     } catch (error) {
@@ -119,7 +119,7 @@ const PaymentManager = ({ students, currentGroup }) => {
           paymentDate: paymentData.paymentDate,
           paymentMethod: paymentData.paymentMethod,
           notes: paymentData.notes,
-          monthlyFee: calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).monthlyFee
+          monthlyFee: student.monthlyFee || calculateStudentPaymentStatus(student, [], selectedMonth, selectedYear).monthlyFee
         });
       }
     } catch (error) {
