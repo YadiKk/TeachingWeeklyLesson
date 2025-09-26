@@ -30,20 +30,39 @@ function App() {
 
 
   const handleAddStudent = async (newStudent) => {
-    if (!currentGroup) return;
-    
-    // Generate lessons for the student
-    const selectedDays = newStudent.selectedDays || [1, 3];
-    const lessons = generateLessonDates(new Date(currentWeekStart), selectedDays, weekStartDay);
-    
-    const studentData = {
-      ...newStudent,
-      selectedDays,
-      weeklyLessonCount: selectedDays.length,
-      lessons
-    };
-    
-    await addStudent(currentGroup, studentData);
+    try {
+      if (!currentGroup) {
+        console.error('No current group');
+        alert('Önce bir gruba katılın veya grup oluşturun');
+        return;
+      }
+      
+      console.log('Adding student:', newStudent);
+      console.log('Current group:', currentGroup);
+      
+      // Generate lessons for the student
+      const selectedDays = newStudent.selectedDays || [1, 3];
+      const lessons = generateLessonDates(new Date(currentWeekStart), selectedDays, weekStartDay);
+      
+      const studentData = {
+        ...newStudent,
+        selectedDays,
+        weeklyLessonCount: selectedDays.length,
+        lessons
+      };
+      
+      console.log('Student data to save:', studentData);
+      
+      const result = await addStudent(currentGroup, studentData);
+      console.log('Add student result:', result);
+      
+      if (!result.success) {
+        alert('Öğrenci eklenirken hata oluştu: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error adding student:', error);
+      alert('Öğrenci eklenirken hata oluştu: ' + error.message);
+    }
   };
 
   const handleUpdateStudent = async (studentId, updates) => {

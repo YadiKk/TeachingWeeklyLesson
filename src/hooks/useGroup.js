@@ -77,17 +77,25 @@ export const useGroup = () => {
 
   // Subscribe to real-time data
   useEffect(() => {
-    if (!currentGroup) return;
+    if (!currentGroup) {
+      console.log('No current group, not setting up listeners');
+      return;
+    }
+
+    console.log('Setting up Firebase listeners for group:', currentGroup);
 
     const unsubscribeStudents = subscribeToGroupData(currentGroup, (data) => {
+      console.log('Students updated in useGroup hook:', data);
       setStudents(data);
     });
 
     const unsubscribeSettings = subscribeToGroupSettings(currentGroup, (settings) => {
+      console.log('Settings updated in useGroup hook:', settings);
       setGroupSettings(settings);
     });
 
     return () => {
+      console.log('Cleaning up Firebase listeners');
       unsubscribeStudents();
       unsubscribeSettings();
     };

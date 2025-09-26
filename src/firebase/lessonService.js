@@ -58,6 +58,8 @@ export const joinGroup = async (pin) => {
 // Student management functions
 export const addStudent = async (groupId, studentData) => {
   try {
+    console.log('Firebase addStudent called with:', { groupId, studentData });
+    
     const studentRef = doc(collection(db, STUDENTS_COLLECTION));
     const student = {
       ...studentData,
@@ -66,7 +68,11 @@ export const addStudent = async (groupId, studentData) => {
       updatedAt: serverTimestamp()
     };
     
+    console.log('Student document to save:', student);
+    
     await setDoc(studentRef, student);
+    console.log('Student saved successfully with ID:', studentRef.id);
+    
     return { success: true, studentId: studentRef.id };
   } catch (error) {
     console.error('Error adding student:', error);
@@ -108,8 +114,10 @@ export const subscribeToGroupData = (groupId, callback) => {
     );
     
     return onSnapshot(studentsQuery, (snapshot) => {
+      console.log('Firebase snapshot received:', snapshot.size, 'documents for group:', groupId);
       const students = [];
       snapshot.forEach((doc) => {
+        console.log('Student document from Firebase:', doc.id, doc.data());
         students.push({ id: doc.id, ...doc.data() });
       });
       // Sort by creation time locally
@@ -118,6 +126,7 @@ export const subscribeToGroupData = (groupId, callback) => {
         const bTime = b.createdAt?.seconds || 0;
         return aTime - bTime;
       });
+      console.log('Processed students for callback:', students);
       callback(students);
     });
   } catch (error) {
