@@ -13,7 +13,7 @@ const PaymentSummary = ({ summary, currentMonth, currentYear }) => {
   } = summary;
 
   return (
-    <div className="card p-4 mb-4">
+    <div className="card">
       <h4 className="text-lg font-semibold text-gray-800 mb-3">
         {currentMonth}/{currentYear} Aylık Ödeme Özeti
       </h4>

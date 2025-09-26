@@ -5,8 +5,8 @@ import LessonStatusSelector from './LessonStatusSelector';
 
 const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange }) => {
   return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700 mb-3">This Week's Schedule:</h4>
+    <div className="space-y-3">
+      <h4 className="text-md font-medium text-gray-700">Bu Haftanın Programı</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-2">
         {weeklyView.map((dayData) => (
           <div
@@ -14,10 +14,10 @@ const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLe
             className={`p-3 rounded-lg border transition-colors ${
               dayData.hasLesson
                 ? dayData.lesson.cancelled 
-                  ? 'bg-red-50 border-red-200' 
+                  ? 'status-cancelled' 
                   : dayData.lesson.completed
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-primary-50 border-primary-200'
+                  ? 'status-completed'
+                  : 'status-pending'
                 : 'bg-gray-50 border-gray-200'
             }`}
           >
@@ -40,7 +40,7 @@ const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLe
                     <div className={`font-medium ${
                       dayData.lesson.cancelled ? 'text-red-600 line-through' : 'text-gray-900'
                     }`}>
-                      {dayData.lesson.cancelled ? 'Cancelled' : 'Scheduled'}
+                      {dayData.lesson.cancelled ? 'İptal' : 'Planlandı'}
                     </div>
                   </div>
                   
@@ -52,7 +52,7 @@ const WeeklyView = ({ weeklyView, onToggleLesson, onUpdateLessonTime, onToggleLe
                 </div>
               ) : (
                 <div className="text-xs text-gray-400 italic">
-                  No lesson
+                  Ders yok
                 </div>
               )}
             </div>

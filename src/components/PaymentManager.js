@@ -21,7 +21,6 @@ const PaymentManager = ({ students, currentGroup }) => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Subscribe to monthly payments for current month/year
   useEffect(() => {
     if (!currentGroup) return;
 
@@ -37,7 +36,6 @@ const PaymentManager = ({ students, currentGroup }) => {
     return unsubscribe;
   }, [currentGroup, selectedMonth, selectedYear]);
 
-  // Calculate payment statuses for all students
   const paymentStatuses = students.map(student => 
     calculateStudentPaymentStatus(student, monthlyPayments, selectedMonth, selectedYear)
   );
@@ -161,7 +159,7 @@ const PaymentManager = ({ students, currentGroup }) => {
 
   if (!currentGroup) {
     return (
-      <div className="card p-6 text-center">
+      <div className="card text-center">
         <p className="text-gray-500">Önce bir gruba katılın veya grup oluşturun.</p>
       </div>
     );
@@ -170,7 +168,7 @@ const PaymentManager = ({ students, currentGroup }) => {
   return (
     <div className="space-y-4">
       {/* Month/Year Selector */}
-      <div className="card p-4">
+      <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
           <div className="flex items-center space-x-4">
             <h3 className="text-lg font-semibold text-gray-800">
@@ -183,7 +181,7 @@ const PaymentManager = ({ students, currentGroup }) => {
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                className="input-field w-32"
+                className="input w-32"
               >
                 {generateMonthOptions().map(month => (
                   <option key={month.value} value={month.value}>
@@ -194,7 +192,7 @@ const PaymentManager = ({ students, currentGroup }) => {
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-                className="input-field w-24"
+                className="input w-24"
               >
                 {generateYearOptions().map(year => (
                   <option key={year} value={year}>
@@ -221,7 +219,7 @@ const PaymentManager = ({ students, currentGroup }) => {
         </h4>
         
         {paymentStatuses.length === 0 ? (
-          <div className="card p-4 text-center">
+          <div className="card text-center">
             <p className="text-gray-500 text-sm">Bu ay için öğrenci bulunamadı.</p>
           </div>
         ) : (
@@ -251,7 +249,7 @@ const PaymentManager = ({ students, currentGroup }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6">
             <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
               <span>İşleniyor...</span>
             </div>
           </div>

@@ -16,8 +16,8 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
   return (
     <div className={`p-3 rounded-lg border-2 transition-all ${
       isPaid 
-        ? 'bg-green-50 border-green-200' 
-        : 'bg-red-50 border-red-200'
+        ? 'status-paid' 
+        : 'status-unpaid'
     }`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
@@ -62,13 +62,13 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
           <>
             <button
               onClick={() => onMarkAsUnpaid(paymentStatus.studentId)}
-              className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+              className="btn btn-danger text-xs px-2 py-1"
             >
               İptal
             </button>
             <button
               onClick={() => onEditPayment(paymentStatus)}
-              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="btn btn-primary text-xs px-2 py-1"
             >
               Düzenle
             </button>
@@ -76,7 +76,7 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
         ) : (
           <button
             onClick={() => onMarkAsPaid(paymentStatus.studentId)}
-            className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            className="btn btn-success text-xs px-2 py-1"
           >
             Ödendi
           </button>

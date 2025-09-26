@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { generateLessonDates, getWeekStart } from '../utils/dateUtils';
 import DaySelector from './DaySelector';
 
 const AddStudentForm = ({ onAddStudent, weekStartDay, currentWeekStart }) => {
@@ -37,19 +36,19 @@ const AddStudentForm = ({ onAddStudent, weekStartDay, currentWeekStart }) => {
   };
 
   return (
-    <div className="card p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Add New Student</h3>
+    <div className="card">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Yeni Öğrenci Ekle</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Student Name
+            Öğrenci Adı
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="input-field"
-            placeholder="Enter student name"
+            className="input"
+            placeholder="Öğrenci adını girin"
             required
           />
         </div>
@@ -62,10 +61,10 @@ const AddStudentForm = ({ onAddStudent, weekStartDay, currentWeekStart }) => {
         
         <button
           type="submit"
-          className="btn-primary"
+          className="btn btn-primary"
           disabled={selectedDays.length === 0}
         >
-          Add Student
+          Öğrenci Ekle
         </button>
       </form>
     </div>

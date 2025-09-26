@@ -3,7 +3,17 @@ import WeeklyView from './WeeklyView';
 import DaySelector from './DaySelector';
 import { getWeeklyView } from '../utils/dateUtils';
 
-const StudentCard = ({ student, onUpdateStudent, onDeleteStudent, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange, weekStartDay, currentWeekStart }) => {
+const StudentCard = ({ 
+  student, 
+  onUpdateStudent, 
+  onDeleteStudent, 
+  onToggleLesson, 
+  onUpdateLessonTime, 
+  onToggleLessonCancellation, 
+  onLessonStatusChange, 
+  weekStartDay, 
+  currentWeekStart 
+}) => {
   const handleNameChange = (e) => {
     onUpdateStudent(student.id, { name: e.target.value });
   };
@@ -18,7 +28,6 @@ const StudentCard = ({ student, onUpdateStudent, onDeleteStudent, onToggleLesson
       newDays = [...currentDays, dayValue].sort();
     }
     
-    // Update student with new days - this will trigger lesson regeneration
     onUpdateStudent(student.id, { 
       selectedDays: newDays,
       weeklyLessonCount: newDays.length
@@ -26,25 +35,25 @@ const StudentCard = ({ student, onUpdateStudent, onDeleteStudent, onToggleLesson
   };
 
   return (
-    <div className="card p-6 mb-6">
+    <div className="card">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1 mr-4">
           <input
             type="text"
             value={student.name}
             onChange={handleNameChange}
-            className="input-field text-lg font-semibold mb-2"
-            placeholder="Student Name"
+            className="input text-lg font-semibold mb-2"
+            placeholder="Öğrenci Adı"
           />
           <div className="text-sm text-gray-600">
-            Weekly lessons: {student.weeklyLessonCount || 0}
+            Haftalık ders sayısı: {student.weeklyLessonCount || 0}
           </div>
         </div>
         <button
           onClick={() => onDeleteStudent(student.id)}
-          className="text-red-500 hover:text-red-700 font-medium text-sm"
+          className="btn btn-danger text-sm"
         >
-          Delete
+          Sil
         </button>
       </div>
       

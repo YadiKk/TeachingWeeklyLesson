@@ -51,7 +51,7 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
               name="paymentDate"
               value={formData.paymentDate}
               onChange={handleChange}
-              className="input-field"
+              className="input"
               required
             />
           </div>
@@ -64,7 +64,7 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
               name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleChange}
-              className="input-field"
+              className="input"
             >
               <option value="cash">Nakit</option>
               <option value="bank_transfer">Banka Havalesi</option>
@@ -82,7 +82,7 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
               value={formData.notes}
               onChange={handleChange}
               rows={3}
-              className="input-field"
+              className="input"
               placeholder="Ödeme ile ilgili notlar..."
             />
           </div>
@@ -90,14 +90,14 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
           <div className="flex space-x-3 pt-4">
             <button
               type="submit"
-              className="btn-primary flex-1"
+              className="btn btn-primary flex-1"
             >
               Kaydet
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary flex-1"
+              className="btn btn-secondary flex-1"
             >
               İptal
             </button>
