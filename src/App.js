@@ -8,6 +8,7 @@ import StudentCard from './components/StudentCard';
 import TodaysLessons from './components/TodaysLessons';
 import CancelledLessons from './components/CancelledLessons';
 import GroupManager from './components/GroupManager';
+import PaymentManager from './components/PaymentManager';
 
 function App() {
   const { 
@@ -22,7 +23,7 @@ function App() {
     updateSettings 
   } = useGroup();
   
-  const [currentPage, setCurrentPage] = useState('lessons'); // 'lessons' or 'cancelled'
+  const [currentPage, setCurrentPage] = useState('lessons'); // 'lessons', 'cancelled', or 'payments'
   
   // Get settings from group or use defaults
   const currentWeekStart = groupSettings?.settings?.currentWeekStart || getWeekStart().toISOString();
@@ -317,7 +318,7 @@ function App() {
           <>
             {/* Navigation Tabs */}
             <div className="card p-4 mb-6">
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap space-x-4">
                 <button
                   onClick={() => setCurrentPage('lessons')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -337,6 +338,16 @@ function App() {
                   }`}
                 >
                   Cancelled Lessons ({cancelledLessons.length})
+                </button>
+                <button
+                  onClick={() => setCurrentPage('payments')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    currentPage === 'payments'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Payment Management
                 </button>
               </div>
             </div>
@@ -360,6 +371,13 @@ function App() {
                 cancelledLessons={cancelledLessons}
                 onRescheduleLesson={handleRescheduleLesson}
                 onRestoreLesson={handleRestoreLesson}
+              />
+            )}
+            
+            {currentPage === 'payments' && (
+              <PaymentManager
+                students={students}
+                currentGroup={currentGroup}
               />
             )}
             
