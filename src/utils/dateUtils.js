@@ -90,15 +90,16 @@ export const isToday = (dateString) => {
   return today.toDateString() === lessonDate.toDateString();
 };
 
-export const getTodaysLessons = (students, currentWeekStart, weekStartDay = 1) => {
+export const getTodaysLessons = async (students, currentWeekStart, weekStartDay = 1) => {
   const todaysLessons = [];
   const currentWeekStartDate = new Date(currentWeekStart);
   
-  students.forEach(student => {
+  // Import the advanced daily payment utilities once
+  const { getScheduledWeekdays, getTodaysLessonTime, isTodayPaid } = await import('./dailyPaymentAdvanced');
+  
+  for (const student of students) {
     // For daily payment students, create a virtual lesson for today if they have scheduled weekdays
     if (student.paymentType === 'daily') {
-      // Import the advanced daily payment utilities
-      const { getScheduledWeekdays, getTodaysLessonTime, isTodayPaid } = require('./dailyPaymentAdvanced');
       
       const scheduledWeekdays = getScheduledWeekdays(student.id);
       const today = new Date();
