@@ -146,7 +146,7 @@ export const getTodaysLessons = async (students, currentWeekStart, weekStartDay 
         }
       });
     }
-  });
+  }
   
   // Sort by time
   return todaysLessons.sort((a, b) => a.time.localeCompare(b.time));
