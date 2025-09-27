@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGroup } from './hooks/useGroup';
 import { addStudent, updateStudent, deleteStudent } from './firebase/lessonService';
@@ -286,7 +286,16 @@ function AppContent() {
     }))
   }));
 
-  const todaysLessons = getTodaysLessons(migratedStudents, currentWeekStart, weekStartDay);
+  const [todaysLessons, setTodaysLessons] = useState([]);
+  
+  // Load today's lessons asynchronously
+  useEffect(() => {
+    const loadTodaysLessons = async () => {
+      const lessons = await getTodaysLessons(migratedStudents, currentWeekStart, weekStartDay);
+      setTodaysLessons(lessons);
+    };
+    loadTodaysLessons();
+  }, [migratedStudents, currentWeekStart, weekStartDay]);
   
   const cancelledLessons = migratedStudents.flatMap(student => 
     student.lessons
