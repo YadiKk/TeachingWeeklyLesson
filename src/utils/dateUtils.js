@@ -95,22 +95,56 @@ export const getTodaysLessons = (students, currentWeekStart, weekStartDay = 1) =
   const currentWeekStartDate = new Date(currentWeekStart);
   
   students.forEach(student => {
-    student.lessons.forEach(lesson => {
-      if (isToday(lesson.date)) {
-        // Check if lesson belongs to current week
-        const lessonDate = new Date(lesson.date);
-        const weekStart = getWeekStart(lessonDate, weekStartDay);
-        const currentWeekStartForComparison = getWeekStart(currentWeekStartDate, weekStartDay);
+    // For daily payment students, create a virtual lesson for today if they have scheduled weekdays
+    if (student.paymentType === 'daily') {
+      // Import the advanced daily payment utilities
+      const { getScheduledWeekdays, getTodaysLessonTime, isTodayPaid } = require('./dailyPaymentAdvanced');
+      
+      const scheduledWeekdays = getScheduledWeekdays(student.id);
+      const today = new Date();
+      const todayWeekday = today.getDay();
+      
+      // Check if student should have a lesson today
+      if (scheduledWeekdays.includes(todayWeekday)) {
+        const todaysTime = getTodaysLessonTime(student.id);
+        const isPaid = isTodayPaid(student.id);
         
-        if (weekStart.getTime() === currentWeekStartForComparison.getTime()) {
-          todaysLessons.push({
-            ...lesson,
-            studentName: student.name,
-            studentId: student.id
-          });
-        }
+        const virtualLesson = {
+          id: `daily-${student.id}-${today.toISOString().split('T')[0]}`,
+          date: today.toISOString(),
+          time: todaysTime,
+          completed: false,
+          cancelled: false,
+          paid: isPaid,
+          dayName: today.toLocaleDateString('en-US', { weekday: 'long' }),
+          isVirtual: true // Flag to identify virtual lessons
+        };
+        
+        todaysLessons.push({
+          ...virtualLesson,
+          studentName: student.name,
+          studentId: student.id
+        });
       }
-    });
+    } else {
+      // Regular lesson processing for monthly payment students
+      student.lessons.forEach(lesson => {
+        if (isToday(lesson.date)) {
+          // Check if lesson belongs to current week
+          const lessonDate = new Date(lesson.date);
+          const weekStart = getWeekStart(lessonDate, weekStartDay);
+          const currentWeekStartForComparison = getWeekStart(currentWeekStartDate, weekStartDay);
+          
+          if (weekStart.getTime() === currentWeekStartForComparison.getTime()) {
+            todaysLessons.push({
+              ...lesson,
+              studentName: student.name,
+              studentId: student.id
+            });
+          }
+        }
+      });
+    }
   });
   
   // Sort by time

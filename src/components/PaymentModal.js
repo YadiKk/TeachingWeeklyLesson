@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     paymentDate: '',
     paymentMethod: 'cash',
@@ -38,13 +40,13 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
-          Ödeme Detaylarını Düzenle - {paymentStatus?.studentName}
+          {t('paymentModal.editPaymentDetails')} - {paymentStatus?.studentName}
         </h3>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ödeme Tarihi
+              {t('paymentModal.paymentDate')}
             </label>
             <input
               type="date"
@@ -58,7 +60,7 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ödeme Yöntemi
+              {t('paymentModal.paymentMethod')}
             </label>
             <select
               name="paymentMethod"
@@ -66,16 +68,16 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
               onChange={handleChange}
               className="input"
             >
-              <option value="cash">Nakit</option>
-              <option value="bank_transfer">Banka Havalesi</option>
-              <option value="credit_card">Kredi Kartı</option>
-              <option value="other">Diğer</option>
+              <option value="cash">{t('paymentModal.cash')}</option>
+              <option value="bank_transfer">{t('paymentModal.bankTransfer')}</option>
+              <option value="credit_card">{t('paymentModal.creditCard')}</option>
+              <option value="other">{t('paymentModal.other')}</option>
             </select>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Notlar
+              {t('paymentModal.notes')}
             </label>
             <textarea
               name="notes"
@@ -83,7 +85,7 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
               onChange={handleChange}
               rows={3}
               className="input"
-              placeholder="Ödeme ile ilgili notlar..."
+              placeholder={t('paymentModal.paymentNotesPlaceholder')}
             />
           </div>
           
@@ -92,14 +94,14 @@ const PaymentModal = ({ isOpen, onClose, paymentStatus, onSavePayment }) => {
               type="submit"
               className="btn btn-primary flex-1"
             >
-              Kaydet
+              {t('paymentModal.save')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="btn btn-secondary flex-1"
             >
-              İptal
+              {t('paymentModal.cancel')}
             </button>
           </div>
         </form>

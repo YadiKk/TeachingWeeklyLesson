@@ -1,18 +1,21 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDate, formatTime } from '../utils/dateUtils';
 
 const TodaysLessons = ({ todaysLessons, onToggleLesson, onToggleLessonCancellation }) => {
+  const { t } = useTranslation();
+  
   if (todaysLessons.length === 0) {
     return (
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Bugünkü Dersler</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('lessons.todaysLessons')}</h3>
         <div className="text-center py-8">
           <div className="text-gray-400 mb-4">
             <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-gray-500">Bugün için ders yok</p>
+          <p className="text-gray-500">{t('lessons.noLessonsToday')}</p>
         </div>
       </div>
     );
@@ -21,7 +24,7 @@ const TodaysLessons = ({ todaysLessons, onToggleLesson, onToggleLessonCancellati
   return (
     <div className="card">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        Bugünkü Dersler ({todaysLessons.length})
+        {t('lessons.todaysLessons')} ({todaysLessons.length})
       </h3>
       <div className="space-y-3">
         {todaysLessons.map((lesson) => (
@@ -58,7 +61,7 @@ const TodaysLessons = ({ todaysLessons, onToggleLesson, onToggleLessonCancellati
                       ? 'bg-red-500 border-red-500 text-white'
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
-                  title={lesson.cancelled ? 'İptali kaldır' : 'İptal et'}
+                  title={lesson.cancelled ? t('lessons.uncancelLesson') : t('lessons.cancelLesson')}
                 >
                   {lesson.cancelled && (
                     <span className="text-sm">✕</span>
@@ -72,7 +75,7 @@ const TodaysLessons = ({ todaysLessons, onToggleLesson, onToggleLessonCancellati
                     lesson.cancelled ? 'text-red-600 line-through' : 'text-gray-900'
                   }`}>
                     {lesson.studentName}
-                    {lesson.cancelled && ' (İptal)'}
+                    {lesson.cancelled && ` (${t('lessons.cancelled')})`}
                   </span>
                   <span className="text-sm text-gray-500">
                     {formatDate(lesson.date)}
@@ -88,7 +91,7 @@ const TodaysLessons = ({ todaysLessons, onToggleLesson, onToggleLessonCancellati
                   {formatTime(lesson.time)}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {lesson.cancelled ? 'İptal' : lesson.completed ? 'Tamamlandı' : 'Bekliyor'}
+                  {lesson.cancelled ? t('lessons.cancelled') : lesson.completed ? t('lessons.completed') : t('lessons.pending')}
                 </div>
               </div>
             </div>

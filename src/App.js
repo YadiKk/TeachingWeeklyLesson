@@ -1,8 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGroup } from './hooks/useGroup';
 import { addStudent, updateStudent, deleteStudent } from './firebase/lessonService';
 import { generateLessonDates, getWeekStart, getTodaysLessons, getPreviousWeek, getNextWeek } from './utils/dateUtils';
-import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import WeekControls from './components/WeekControls';
 import AddStudentForm from './components/AddStudentForm';
 import StudentCard from './components/StudentCard';
@@ -13,6 +13,7 @@ import PaymentManager from './components/PaymentManager';
 import LanguageSelector from './components/LanguageSelector';
 
 function AppContent() {
+  const { t } = useTranslation();
   const { 
     currentGroup, 
     students, 
@@ -25,8 +26,6 @@ function AppContent() {
     updateSettings 
   } = useGroup();
   
-  const { t } = useLanguage();
-  
   // Removed dashboard toggle - keeping only simple view
   
   // Get settings from group or use defaults
@@ -36,7 +35,7 @@ function AppContent() {
   const handleAddStudent = async (newStudent) => {
     try {
       if (!currentGroup) {
-        alert(t('pleaseJoinGroupFirst'));
+        alert(t('app.pleaseJoinGroupFirst'));
         return;
       }
       
@@ -53,11 +52,22 @@ function AppContent() {
       const result = await addStudent(currentGroup, studentData);
       
       if (!result.success) {
-        alert(t('errorAddingStudent') + ': ' + result.error);
+        alert(t('errors.errorAddingStudent') + ': ' + result.error);
+      } else {
+        // Initialize daily payment data for daily payment students
+        if (newStudent.paymentType === 'daily') {
+          const { setScheduledWeekdays, setLessonTimeForDay } = await import('./utils/dailyPaymentAdvanced');
+          setScheduledWeekdays(result.studentId || newStudent.id, selectedDays);
+          
+          // Set default lesson times for each selected day
+          selectedDays.forEach(day => {
+            setLessonTimeForDay(result.studentId || newStudent.id, day, newStudent.lessonTime || '09:00');
+          });
+        }
       }
     } catch (error) {
       console.error('Error adding student:', error);
-      alert(t('errorAddingStudent') + ': ' + error.message);
+      alert(t('errors.errorAddingStudent') + ': ' + error.message);
     }
   };
 
@@ -83,15 +93,15 @@ function AppContent() {
   };
 
   const handleDeleteStudent = async (studentId) => {
-    if (window.confirm(t('areYouSureDeleteStudent'))) {
+    if (window.confirm(t('errors.areYouSureDeleteStudent'))) {
       try {
         const result = await deleteStudent(studentId);
         if (!result.success) {
-          alert(t('errorDeletingStudent') + ': ' + result.error);
+          alert(t('errors.errorDeletingStudent') + ': ' + result.error);
         }
       } catch (error) {
         console.error('Error deleting student:', error);
-        alert(t('errorDeletingStudent') + ': ' + error.message);
+        alert(t('errors.errorDeletingStudent') + ': ' + error.message);
       }
     }
   };
@@ -109,11 +119,11 @@ function AppContent() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert(t('errorUpdatingLesson') + ': ' + result.error);
+        alert(t('errors.errorUpdatingLesson') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error toggling lesson:', error);
-      alert(t('errorUpdatingLesson') + ': ' + error.message);
+      alert(t('errors.errorUpdatingLesson') + ': ' + error.message);
     }
   };
 
@@ -130,11 +140,11 @@ function AppContent() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert(t('errorUpdatingLessonTime') + ': ' + result.error);
+        alert(t('errors.errorUpdatingLessonTime') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating lesson time:', error);
-      alert(t('errorUpdatingLessonTime') + ': ' + error.message);
+      alert(t('errors.errorUpdatingLessonTime') + ': ' + error.message);
     }
   };
 
@@ -151,11 +161,11 @@ function AppContent() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert(t('errorUpdatingLessonCancellation') + ': ' + result.error);
+        alert(t('errors.errorUpdatingLessonCancellation') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error toggling lesson cancellation:', error);
-      alert(t('errorUpdatingLessonCancellation') + ': ' + error.message);
+      alert(t('errors.errorUpdatingLessonCancellation') + ': ' + error.message);
     }
   };
 
@@ -176,11 +186,11 @@ function AppContent() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert(t('errorChangingLessonStatus') + ': ' + result.error);
+        alert(t('errors.errorChangingLessonStatus') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error changing lesson status:', error);
-      alert(t('errorChangingLessonStatus') + ': ' + error.message);
+      alert(t('errors.errorChangingLessonStatus') + ': ' + error.message);
     }
   };
 
@@ -197,11 +207,11 @@ function AppContent() {
       
       const result = await updateStudent(studentId, { lessons: updatedLessons });
       if (!result.success) {
-        alert(t('errorRestoringLesson') + ': ' + result.error);
+        alert(t('errors.errorRestoringLesson') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error restoring lesson:', error);
-      alert(t('errorRestoringLesson') + ': ' + error.message);
+      alert(t('errors.errorRestoringLesson') + ': ' + error.message);
     }
   };
 
@@ -220,11 +230,11 @@ function AppContent() {
       });
       
       if (!result.success) {
-        alert(t('errorUpdatingWeek') + ': ' + result.error);
+        alert(t('errors.errorUpdatingWeek') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week:', error);
-      alert(t('errorUpdatingWeek') + ': ' + error.message);
+      alert(t('errors.errorUpdatingWeek') + ': ' + error.message);
     }
   };
 
@@ -239,11 +249,11 @@ function AppContent() {
       });
       
       if (!result.success) {
-        alert(t('errorUpdatingWeek') + ': ' + result.error);
+        alert(t('errors.errorUpdatingWeek') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week:', error);
-      alert(t('errorUpdatingWeek') + ': ' + error.message);
+      alert(t('errors.errorUpdatingWeek') + ': ' + error.message);
     }
   };
 
@@ -258,11 +268,11 @@ function AppContent() {
       });
       
       if (!result.success) {
-        alert(t('errorUpdatingWeekStartDay') + ': ' + result.error);
+        alert(t('errors.errorUpdatingWeekStartDay') + ': ' + result.error);
       }
     } catch (error) {
       console.error('Error updating week start day:', error);
-      alert(t('errorUpdatingWeekStartDay') + ': ' + error.message);
+      alert(t('errors.errorUpdatingWeekStartDay') + ': ' + error.message);
     }
   };
 
@@ -295,13 +305,13 @@ function AppContent() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('lessonTrackingSystem')}</h1>
-              <p className="text-gray-600">{t('studentLessonsAndPaymentManagement')}</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('app.title')}</h1>
+              <p className="text-gray-600">{t('app.subtitle')}</p>
             </div>
             <div className="flex items-center space-x-4">
               <LanguageSelector />
               <span className="text-sm text-gray-500">
-                {migratedStudents.length} {t('students')} • {cancelledLessons.length} {t('cancelled')}
+                {migratedStudents.length} {t('app.students')} • {cancelledLessons.length} {t('app.cancelled')}
               </span>
             </div>
           </div>
@@ -362,8 +372,8 @@ function AppContent() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">{t('noStudentsYet')}</h3>
-                  <p className="text-gray-600">{t('startByAddingFirstStudent')}</p>
+                  <h3 className="text-lg font-medium text-gray-800 mb-2">{t('app.noStudentsYet')}</h3>
+                  <p className="text-gray-600">{t('app.startByAddingFirstStudent')}</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -372,7 +382,7 @@ function AppContent() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                        {t('monthlyPaymentStudents')}
+                        {t('app.monthlyPaymentStudents')}
                       </h3>
                       <div className="space-y-4">
                         {migratedStudents.filter(student => student.paymentType === 'monthly').map(student => (
@@ -398,7 +408,7 @@ function AppContent() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                         <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                        {t('dailyPaymentStudents')}
+                        {t('app.dailyPaymentStudents')}
                       </h3>
                       <div className="space-y-4">
                         {migratedStudents.filter(student => student.paymentType === 'daily').map(student => (
@@ -429,11 +439,7 @@ function AppContent() {
 }
 
 function App() {
-  return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
-  );
+  return <AppContent />;
 }
 
 export default App;

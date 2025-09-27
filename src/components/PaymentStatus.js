@@ -1,9 +1,9 @@
 import React from 'react';
 import { formatCurrency } from '../utils/paymentUtils';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPayment }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const { 
     studentName, 
     paymentType,
@@ -47,8 +47,8 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
       <div className="flex justify-between items-center mb-2 text-xs">
         <span className="text-gray-600">
           {paymentType === 'daily' 
-            ? `${paidLessons || 0}/${totalLessons} ${t('lessonsPaid')}` 
-            : `${totalLessons} ${t('lessons')} • ${isPaid ? t('paid') : t('notPaid')}`
+            ? `${paidLessons || 0}/${totalLessons} ${t('payments.lessonsPaid')}` 
+            : `${totalLessons} ${t('payments.lessons')} • ${isPaid ? t('payments.paid') : t('lessons.notPaid')}`
           }
         </span>
         {isPaid && paymentDate && (
@@ -72,13 +72,13 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
               onClick={() => onMarkAsUnpaid(paymentStatus.studentId)}
               className="btn btn-danger text-xs px-2 py-1"
             >
-              {t('cancel')}
+              {t('forms.cancel')}
             </button>
             <button
               onClick={() => onEditPayment(paymentStatus)}
               className="btn btn-primary text-xs px-2 py-1"
             >
-              {t('edit')}
+              {t('forms.edit')}
             </button>
           </>
         ) : (
@@ -86,7 +86,7 @@ const PaymentStatus = ({ paymentStatus, onMarkAsPaid, onMarkAsUnpaid, onEditPaym
             onClick={() => onMarkAsPaid(paymentStatus.studentId)}
             className="btn btn-success text-xs px-2 py-1"
           >
-            {t('paid')}
+            {t('payments.paid')}
           </button>
         )}
       </div>

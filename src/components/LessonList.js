@@ -1,20 +1,23 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDate, formatTime } from '../utils/dateUtils';
 import TimeSelector from './TimeSelector';
 import LessonStatusSelector from './LessonStatusSelector';
 
 const LessonList = ({ lessons, onToggleLesson, onUpdateLessonTime, onToggleLessonCancellation, onLessonStatusChange }) => {
+  const { t } = useTranslation();
+  
   if (!lessons || lessons.length === 0) {
     return (
       <div className="text-gray-500 text-sm italic">
-        No lessons scheduled for this week
+        {t('lessons.noLessonsThisWeek')}
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700 mb-3">This Week's Lessons:</h4>
+      <h4 className="text-sm font-medium text-gray-700 mb-3">{t('lessons.thisWeeksSchedule')}:</h4>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {lessons.map((lesson) => (
           <div
@@ -37,7 +40,7 @@ const LessonList = ({ lessons, onToggleLesson, onUpdateLessonTime, onToggleLesso
                 lesson.cancelled ? 'text-red-600 line-through' : 'text-gray-900'
               }`}>
                 {lesson.dayName}
-                {lesson.cancelled && ' (Cancelled)'}
+                {lesson.cancelled && ` (${t('lessons.cancelled')})`}
               </div>
               <div className="text-xs text-gray-500">
                 {formatDate(lesson.date)}

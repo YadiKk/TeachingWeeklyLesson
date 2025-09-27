@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import WeeklyView from './WeeklyView';
 import DaySelector from './DaySelector';
+import LessonTimeManager from './LessonTimeManager';
 import { getWeeklyView } from '../utils/dateUtils';
-import { useLanguage } from '../contexts/LanguageContext';
+import { setScheduledWeekdays, getScheduledWeekdays } from '../utils/dailyPaymentAdvanced';
+import { useTranslation } from 'react-i18next';
 
 const StudentCard = ({ 
   student, 
@@ -15,7 +17,14 @@ const StudentCard = ({
   weekStartDay, 
   currentWeekStart 
 }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
+  // Load scheduled weekdays from localStorage when component mounts
+  useEffect(() => {
+    const scheduledWeekdays = getScheduledWeekdays(student.id);
+    if (scheduledWeekdays.length > 0) {
+      onUpdateStudent(student.id, { selectedDays: scheduledWeekdays });
+    }
+  }, [student.id, onUpdateStudent]);
   const handleNameChange = (e) => {
     onUpdateStudent(student.id, { name: e.target.value });
   };
@@ -45,7 +54,7 @@ const StudentCard = ({
       await onUpdateStudent(student.id, { lessons: updatedLessons });
     } catch (error) {
       console.error('Error toggling lesson payment:', error);
-      alert(t('errorUpdatingLesson') + ': ' + error.message);
+      alert(t('errors.errorUpdatingLesson') + ': ' + error.message);
     }
   };
 
@@ -74,28 +83,28 @@ const StudentCard = ({
             value={student.name}
             onChange={handleNameChange}
             className="input text-lg font-semibold mb-2"
-            placeholder={t('studentName')}
+            placeholder={t('forms.studentName')}
           />
           <div className="text-sm text-gray-600">
-            {t('weeklyLessonCount')}: {student.weeklyLessonCount || 0}
+            {t('student.weeklyLessonCount')}: {student.weeklyLessonCount || 0}
           </div>
           <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                {t('paymentType')}:
+                {t('forms.paymentType')}:
               </label>
               <select
                 value={student.paymentType || 'monthly'}
                 onChange={handlePaymentTypeChange}
                 className="input text-xs"
               >
-                <option value="monthly">{t('monthly')}</option>
-                <option value="daily">{t('daily')}</option>
+                <option value="monthly">{t('forms.monthly')}</option>
+                <option value="daily">{t('forms.daily')}</option>
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                {t('amount')}:
+                {t('forms.amount')}:
               </label>
               <input
                 type="number"
@@ -108,7 +117,7 @@ const StudentCard = ({
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
-                {t('currency')}:
+                {t('forms.currency')}:
               </label>
               <select
                 value={student.currency || 'TRY'}
@@ -127,7 +136,7 @@ const StudentCard = ({
           onClick={() => onDeleteStudent(student.id)}
           className="btn btn-danger text-sm"
         >
-          {t('delete')}
+          {t('forms.delete')}
         </button>
       </div>
       
@@ -138,6 +147,12 @@ const StudentCard = ({
           weekStartDay={weekStartDay}
         />
       </div>
+      
+      {/* Lesson Time Manager for Daily Payment Students */}
+      <LessonTimeManager 
+        student={student}
+        onUpdateStudent={onUpdateStudent}
+      />
       
       <WeeklyView 
         weeklyView={getWeeklyView(student, currentWeekStart, weekStartDay)} 

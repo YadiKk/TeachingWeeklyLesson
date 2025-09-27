@@ -1,22 +1,22 @@
 import React from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const daysOfWeek = [
-    { value: 0, label: 'Sunday', short: 'Sun' },
-    { value: 1, label: 'Monday', short: 'Mon' },
-    { value: 2, label: 'Tuesday', short: 'Tue' },
-    { value: 3, label: 'Wednesday', short: 'Wed' },
-    { value: 4, label: 'Thursday', short: 'Thu' },
-    { value: 5, label: 'Friday', short: 'Fri' },
-    { value: 6, label: 'Saturday', short: 'Sat' }
+    { value: 0, label: t('days.sunday'), short: t('days.sunday').substring(0, 3) },
+    { value: 1, label: t('days.monday'), short: t('days.monday').substring(0, 3) },
+    { value: 2, label: t('days.tuesday'), short: t('days.tuesday').substring(0, 3) },
+    { value: 3, label: t('days.wednesday'), short: t('days.wednesday').substring(0, 3) },
+    { value: 4, label: t('days.thursday'), short: t('days.thursday').substring(0, 3) },
+    { value: 5, label: t('days.friday'), short: t('days.friday').substring(0, 3) },
+    { value: 6, label: t('days.saturday'), short: t('days.saturday').substring(0, 3) }
   ];
 
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-gray-700">
-        {t('selectLessonDays')}:
+        {t('week.selectLessonDays')}:
       </label>
       <div className="grid grid-cols-4 gap-2">
         {daysOfWeek.map((day) => (
@@ -36,7 +36,7 @@ const DaySelector = ({ selectedDays, onDayToggle, weekStartDay = 1 }) => {
         ))}
       </div>
       <p className="text-xs text-gray-500">
-        {selectedDays.length} {t('daysSelected')}
+        {selectedDays.length} {t('week.daysSelected')}
       </p>
     </div>
   );

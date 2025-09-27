@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const LessonStatusSelector = ({ lesson, onStatusChange }) => {
+  const { t } = useTranslation();
   const statuses = [
-    { value: 'pending', label: 'Pending', color: 'gray', icon: '○' },
-    { value: 'completed', label: 'Completed', color: 'green', icon: '✓' },
-    { value: 'cancelled', label: 'Cancelled', color: 'red', icon: '✕' }
+    { value: 'pending', label: t('lessons.pending'), color: 'gray', icon: '○' },
+    { value: 'completed', label: t('lessons.completed'), color: 'green', icon: '✓' },
+    { value: 'cancelled', label: t('lessons.cancelled'), color: 'red', icon: '✕' }
   ];
 
   const getStatusColor = (status) => {

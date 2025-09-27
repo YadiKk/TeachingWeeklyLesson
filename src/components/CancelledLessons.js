@@ -1,18 +1,21 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDate, formatTime } from '../utils/dateUtils';
 
 const CancelledLessons = ({ cancelledLessons, onRescheduleLesson, onRestoreLesson }) => {
+  const { t } = useTranslation();
+  
   if (cancelledLessons.length === 0) {
     return (
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">İptal Edilen Dersler</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">{t('lessons.cancelledLessons')}</h3>
         <div className="text-center py-8">
           <div className="text-gray-400 mb-4">
             <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <p className="text-gray-500">İptal edilen ders yok</p>
+          <p className="text-gray-500">{t('lessons.noCancelledLessons')}</p>
         </div>
       </div>
     );
@@ -21,7 +24,7 @@ const CancelledLessons = ({ cancelledLessons, onRescheduleLesson, onRestoreLesso
   return (
     <div className="card">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        İptal Edilen Dersler ({cancelledLessons.length})
+        {t('lessons.cancelledLessons')} ({cancelledLessons.length})
       </h3>
       <div className="space-y-3">
         {cancelledLessons.map((lesson) => (
@@ -49,13 +52,13 @@ const CancelledLessons = ({ cancelledLessons, onRescheduleLesson, onRestoreLesso
                   onClick={() => onRestoreLesson(lesson.studentId, lesson.id)}
                   className="btn btn-success text-sm"
                 >
-                  Geri Yükle
+                  {t('lessons.restore')}
                 </button>
                 <button
                   onClick={() => onRescheduleLesson(lesson.studentId, lesson.id)}
                   className="btn btn-primary text-sm"
                 >
-                  Yeniden Planla
+                  {t('lessons.reschedule')}
                 </button>
               </div>
             </div>
