@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import WeeklyView from './WeeklyView';
 import DaySelector from './DaySelector';
 import LessonTimeManager from './LessonTimeManager';
 import { getWeeklyView } from '../utils/dateUtils';
-import { setScheduledWeekdays, getScheduledWeekdays } from '../utils/dailyPaymentAdvanced';
+import { getScheduledWeekdays, setScheduledWeekdays } from '../utils/dailyPaymentAdvanced';
 import { useTranslation } from 'react-i18next';
 
 const StudentCard = ({ 
@@ -72,6 +72,9 @@ const StudentCard = ({
       selectedDays: newDays,
       weeklyLessonCount: newDays.length
     });
+    
+    // Save to localStorage
+    setScheduledWeekdays(student.id, newDays);
   };
 
   return (

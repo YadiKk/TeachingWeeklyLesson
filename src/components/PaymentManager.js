@@ -15,11 +15,8 @@ import {
   payToday,
   unpayToday,
   getPaymentCounter,
-  getScheduledWeekdays,
-  setScheduledWeekdays,
   getTodaysPaymentStudents,
   getMissedPaymentStudents,
-  setLessonTimeForDay,
   getLessonTimeForDay
 } from '../utils/dailyPaymentAdvanced';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +32,6 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [dailyPaymentUpdate, setDailyPaymentUpdate] = useState(0); // Force re-render for daily payments
 
   useEffect(() => {
     if (!currentGroup) return;
@@ -178,8 +174,8 @@ const PaymentManager = ({ students, currentGroup, weekStartDay = 1, currentWeekS
         }
       }
       
-      // Force re-render by updating the daily payment state
-      setDailyPaymentUpdate(prev => prev + 1);
+      // Force re-render by updating the selected month state
+      setSelectedMonth(prev => prev);
     } catch (error) {
       console.error('Error toggling daily payment:', error);
       alert(t('errors.errorUpdatingLesson') + ': ' + error.message);
